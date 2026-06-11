@@ -1,0 +1,1144 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DIVIN'IN 潛靜｜Fun Dive 行程</title>
+<meta name="description" content="DIVIN'IN 潛靜 東北角 Fun Dive 活動行程表 — 集合地點、時程、潮汐、注意事項一頁搞定">
+<meta property="og:title" content="DIVIN'IN 潛靜｜Fun Dive 行程">
+<meta property="og:description" content="東北角 Fun Dive 活動行程表 — 集合地點、時程、潮汐、注意事項一頁搞定 🤿">
+<meta property="og:type" content="website">
+<meta name="theme-color" content="#0A2E4F">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700;900&family=Outfit:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+
+<script>
+// ╔══════════════════════════════════════════════════════════════╗
+// ║                                                              ║
+// ║   📝 每週設定區 — 只需要改這裡！                              ║
+// ║                                                              ║
+// ║   改完存檔 → git push → 同一個連結自動更新                    ║
+// ║                                                              ║
+// ╚══════════════════════════════════════════════════════════════╝
+
+const CONFIG = {
+
+  // ── 📅 日期 ──
+  date:     "2025-05-24",       // 格式：YYYY-MM-DD
+  weekday:  "週日",              // 週六 / 週日
+
+  // ── 🤿 潛點（改這個，集合地點 & 行程自動連動）──
+  //    可選值："蝙蝠洞" / "龍洞3號" / "蚊子坑"
+  diveSite: "蝙蝠洞",
+
+  // ── 🏊 潛水支數 ──
+  diveCount: 2,
+
+  // ── 🌤️ 天氣（手動填寫）──
+  weather:   "多雲 / 午後雷雨",
+  airTemp:   "25 – 32°C",
+  waterTemp: "約 26°C",
+  waterTempNote: "時有冷流，若較怕冷背心等配件建議攜帶",
+
+  // ── 🌊 潮汐 & 浪高 ──
+  //    如果 cwaApiKey 有填 → 潮汐自動從氣象署抓取，以下手動值為備用
+  //    如果 cwaApiKey 留空 → 使用以下手動值
+  tide: {
+    high1:      "04:07",
+    low:        "10:05",
+    high2:      "15:43",
+    waveHeight: "0 – 50 CM"
+  },
+
+  // ── 🔑 中央氣象署 Open Data API ──
+  //    申請網址：https://opendata.cwa.gov.tw/
+  //    填入 API Key 即自動抓潮汐，留空則用上方手動值
+  cwaApiKey:  "",
+  cwaStation: "基隆",
+
+  // ── 👤 活動負責人 ──
+  leader: {
+    name:  "Linda 教練",
+    phone: "0954-021-482"
+  },
+
+  // ── 📸 活動照片連結（Google Drive 等）──
+  photoAlbum: "https://drive.google.com/drive/folders/12ISvszA74Rfswn2L7Ik59ypNiLBF2F9r?usp=sharing"
+};
+
+
+// ╔══════════════════════════════════════════════════════════════╗
+// ║                                                              ║
+// ║   📍 潛點資料庫 — 新增潛點在這裡加                            ║
+// ║                                                              ║
+// ║   複製任一潛點格式，改名稱和連結即可                           ║
+// ║                                                              ║
+// ╚══════════════════════════════════════════════════════════════╝
+
+const DIVE_SITES = {
+
+  "蝙蝠洞": {
+    shuttle:   { time: "06:50", location: "圓山捷運站 2 號出口", mapUrl: "https://maps.app.goo.gl/geb88wbtgZWGhRAN8" },
+    selfDrive: { time: "07:20", location: "打氣站北部瑞芳店", address: "新北市瑞芳區海濱路 55 號", mapUrl: "https://maps.app.goo.gl/JXTnHDdHRDvxKZVk7", tag: "氣瓶填充站" },
+    direct:    { time: "07:30", location: "蝙蝠洞公園", mapUrl: "https://maps.app.goo.gl/V6B3UUVDR2kNk1Xz9" },
+    warning:   "海濱公路不適合迴轉，請務必從打氣站方向的入口進入公園！",
+    schedule: [
+      { time: "06:50",         title: "圓山捷運站 2 號出口",  desc: "共乘車集合出發",                                             icon: "🚐" },
+      { time: "07:20",         title: "打氣站北部瑞芳店",     desc: "自行前往的夥伴於此集合",                                      icon: "⛽" },
+      { time: "07:30",         title: "抵達蝙蝠洞",           desc: "整裝、Briefing、下水準備",                                    icon: "🏖️" },
+      { time: "08:30 – 09:30", title: "第一潛 🫧",            desc: "享受東北角的水下世界，記得帶上你的相機！", icon: "🤿", dive: 1 },
+      { time: "09:30 – 10:30", title: "水面休息",             desc: "補充水分、吃點點心、聊聊水下看到什麼",                         icon: "☕" },
+      { time: "10:30 – 11:30", title: "第二潛 🫧",            desc: "再次下潛，探索更多角落！",                 icon: "🤿", dive: 2 },
+      { time: "11:30 – 12:15", title: "簡單盥洗",             desc: "現場備有可樂桶可簡單沖洗，也可前往配合潛店使用熱水盥洗",       icon: "🚿" },
+      { time: "12:30",         title: "返程 🏠",              desc: "收拾完畢，快樂返家！辛苦了～",                                 icon: "🚗" }
+    ]
+  },
+
+  "龍洞3號": {
+    shuttle:   { time: "06:50", location: "圓山捷運站 2 號出口", mapUrl: "https://maps.app.goo.gl/geb88wbtgZWGhRAN8" },
+    selfDrive: { time: "07:50", location: "坤成潛水附近", mapUrl: "https://maps.app.goo.gl/kNv2sahMho8b42kk9", tag: "潛水店集合" },
+    direct:    { time: "08:00", location: "龍洞 3 號", mapUrl: "https://maps.app.goo.gl/KnS4SMrb1rvSuWqR8" },
+    warning:   "",
+    schedule: [
+      { time: "06:50",         title: "圓山捷運站 2 號出口",  desc: "共乘車集合出發",                                             icon: "🚐" },
+      { time: "07:50",         title: "坤成潛水附近",         desc: "自行前往的夥伴於此集合",                                      icon: "📍" },
+      { time: "08:00",         title: "抵達龍洞 3 號",        desc: "整裝、Briefing、下水準備",                                    icon: "🏖️" },
+      { time: "09:00 – 10:00", title: "第一潛 🫧",            desc: "享受東北角的水下世界，記得帶上你的相機！", icon: "🤿", dive: 1 },
+      { time: "10:00 – 11:00", title: "水面休息",             desc: "補充水分、吃點點心、聊聊水下看到什麼",                         icon: "☕" },
+      { time: "11:00 – 12:00", title: "第二潛 🫧",            desc: "再次下潛，探索更多角落！",                 icon: "🤿", dive: 2 },
+      { time: "12:00 – 12:45", title: "簡單盥洗",             desc: "現場備有可樂桶可簡單沖洗，也可前往配合潛店使用熱水盥洗",       icon: "🚿" },
+      { time: "13:00",         title: "返程 🏠",              desc: "收拾完畢，快樂返家！辛苦了～",                                 icon: "🚗" }
+    ]
+  },
+
+  "蚊子坑": {
+    shuttle:   { time: "06:50", location: "圓山捷運站 2 號出口", mapUrl: "https://maps.app.goo.gl/geb88wbtgZWGhRAN8" },
+    selfDrive: { time: "07:50", location: "坤成潛水附近", mapUrl: "https://maps.app.goo.gl/kNv2sahMho8b42kk9", tag: "潛水店集合" },
+    direct:    { time: "08:00", location: "蚊子坑", mapUrl: "https://maps.app.goo.gl/bN5v9FstZ4tnBf5D9" },
+    warning:   "",
+    schedule: [
+      { time: "06:50",         title: "圓山捷運站 2 號出口",  desc: "共乘車集合出發",                                             icon: "🚐" },
+      { time: "07:50",         title: "坤成潛水附近",         desc: "自行前往的夥伴於此集合",                                      icon: "📍" },
+      { time: "08:00",         title: "抵達蚊子坑",           desc: "整裝、Briefing、下水準備",                                    icon: "🏖️" },
+      { time: "09:00 – 10:00", title: "第一潛 🫧",            desc: "享受東北角的水下世界，記得帶上你的相機！", icon: "🤿", dive: 1 },
+      { time: "10:00 – 11:00", title: "水面休息",             desc: "補充水分、吃點點心、聊聊水下看到什麼",                         icon: "☕" },
+      { time: "11:00 – 12:00", title: "第二潛 🫧",            desc: "再次下潛，探索更多角落！",                 icon: "🤿", dive: 2 },
+      { time: "12:00 – 12:45", title: "簡單盥洗",             desc: "現場備有可樂桶可簡單沖洗，也可前往配合潛店使用熱水盥洗",       icon: "🚿" },
+      { time: "13:00",         title: "返程 🏠",              desc: "收拾完畢，快樂返家！辛苦了～",                                 icon: "🚗" }
+    ]
+  }
+};
+
+// ══════════════════════════════════════════════════
+//  以下不需修改（除非要調整版面設計）
+// ══════════════════════════════════════════════════
+</script>
+
+<style>
+/* ═══════════════════════════════════════════════
+   DESIGN TOKENS
+   ═══════════════════════════════════════════════ */
+:root {
+  --abyss:      #061B2E;
+  --deep:       #0A2E4F;
+  --ocean:      #0F4C81;
+  --reef:       #1B7FB5;
+  --surface:    #3DBAE8;
+  --foam:       #E8F4FD;
+  --sand:       #FFF8F0;
+  --coral:      #FF6B5A;
+  --coral-soft: #FF8A7D;
+  --kelp:       #2ECC71;
+  --sun:        #FFD93D;
+  --text:       #1A2A3A;
+  --text-light: #5A7A8A;
+  --card-bg:    rgba(255,255,255,0.85);
+  --glass:      rgba(255,255,255,0.15);
+  --radius:     16px;
+  --radius-sm:  10px;
+  --shadow:     0 4px 24px rgba(10,46,79,0.10);
+  --shadow-lg:  0 8px 40px rgba(10,46,79,0.15);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+body {
+  font-family: 'Noto Sans TC', 'Outfit', system-ui, sans-serif;
+  background: var(--foam);
+  color: var(--text);
+  line-height: 1.7;
+  overflow-x: hidden;
+}
+a { color: var(--reef); text-decoration: none; }
+
+/* ═══ HERO ═══ */
+.hero {
+  position: relative;
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 60px 24px 80px;
+  background: linear-gradient(170deg, var(--abyss) 0%, var(--deep) 25%, var(--ocean) 50%, var(--reef) 75%, var(--surface) 100%);
+  overflow: hidden;
+}
+.hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 120% 60% at 50% 100%, rgba(61,186,232,0.25) 0%, transparent 70%),
+    radial-gradient(ellipse 80% 40% at 20% 80%, rgba(46,204,113,0.08) 0%, transparent 60%);
+  pointer-events: none;
+}
+
+.bubbles { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
+.bubble {
+  position: absolute;
+  bottom: -40px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.3), rgba(255,255,255,0.05));
+  border: 1px solid rgba(255,255,255,0.15);
+  animation: rise linear infinite;
+}
+@keyframes rise {
+  0%   { transform: translateY(0) scale(1); opacity: 0.7; }
+  50%  { opacity: 0.5; }
+  100% { transform: translateY(-110vh) scale(0.5); opacity: 0; }
+}
+
+.float-element {
+  position: absolute;
+  font-size: 2rem;
+  animation: floatAround 8s ease-in-out infinite;
+  opacity: 0.6;
+  pointer-events: none;
+}
+@keyframes floatAround {
+  0%, 100% { transform: translate(0, 0) rotate(0deg); }
+  25%      { transform: translate(10px, -15px) rotate(5deg); }
+  50%      { transform: translate(-5px, -25px) rotate(-3deg); }
+  75%      { transform: translate(-15px, -10px) rotate(4deg); }
+}
+
+.hero-content { position: relative; z-index: 2; max-width: 600px; }
+
+.brand-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--glass);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255,255,255,0.2);
+  border-radius: 40px;
+  padding: 8px 20px;
+  color: rgba(255,255,255,0.9);
+  font-size: 0.85rem;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+  margin-bottom: 28px;
+}
+.brand-badge .dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--kelp);
+  animation: pulse 2s ease-in-out infinite;
+}
+@keyframes pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%      { opacity: 0.5; transform: scale(0.8); }
+}
+
+.hero h1 {
+  font-family: 'Outfit', 'Noto Sans TC', sans-serif;
+  font-size: clamp(2.2rem, 6vw, 3.5rem);
+  font-weight: 800;
+  color: #fff;
+  line-height: 1.2;
+  margin-bottom: 8px;
+  text-shadow: 0 2px 20px rgba(0,0,0,0.2);
+}
+.hero h1 .accent {
+  background: linear-gradient(135deg, var(--surface), var(--sun));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.hero-subtitle {
+  font-size: 1.1rem;
+  color: rgba(255,255,255,0.75);
+  font-weight: 300;
+  margin-bottom: 32px;
+}
+
+.hero-info-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  margin-bottom: 32px;
+}
+.hero-info-card {
+  background: var(--glass);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: var(--radius-sm);
+  padding: 14px 10px;
+  text-align: center;
+}
+.hero-info-card .icon { font-size: 1.5rem; margin-bottom: 4px; }
+.hero-info-card .label {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: rgba(255,255,255,0.55);
+  margin-bottom: 2px;
+}
+.hero-info-card .value { font-size: 0.95rem; font-weight: 600; color: #fff; }
+
+.scroll-hint {
+  position: absolute;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  color: rgba(255,255,255,0.5);
+  font-size: 0.75rem;
+  animation: bounce 2s ease-in-out infinite;
+  z-index: 2;
+}
+.scroll-hint .arrow {
+  width: 20px; height: 20px;
+  border-right: 2px solid rgba(255,255,255,0.4);
+  border-bottom: 2px solid rgba(255,255,255,0.4);
+  transform: rotate(45deg);
+}
+@keyframes bounce {
+  0%, 100% { transform: translateX(-50%) translateY(0); }
+  50%      { transform: translateX(-50%) translateY(8px); }
+}
+
+/* ═══ WAVE ═══ */
+.wave-divider { display: block; width: 100%; margin-top: -2px; }
+.wave-divider svg { display: block; width: 100%; height: auto; }
+
+/* ═══ SECTION ═══ */
+.section { padding: 48px 20px; max-width: 680px; margin: 0 auto; }
+.section-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: var(--reef);
+  margin-bottom: 8px;
+}
+.section-label::before {
+  content: '';
+  width: 24px; height: 2px;
+  background: var(--reef);
+  border-radius: 2px;
+}
+.section-title {
+  font-family: 'Outfit', 'Noto Sans TC', sans-serif;
+  font-size: clamp(1.5rem, 4vw, 2rem);
+  font-weight: 700;
+  color: var(--deep);
+  margin-bottom: 24px;
+  line-height: 1.3;
+}
+
+/* ═══ QUICK INFO ═══ */
+.quick-info { background: #fff; padding: 40px 20px; }
+.info-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 16px;
+  max-width: 680px;
+  margin: 0 auto;
+}
+.info-card {
+  background: linear-gradient(135deg, var(--foam) 0%, #fff 100%);
+  border: 1px solid rgba(15,76,129,0.08);
+  border-radius: var(--radius);
+  padding: 20px;
+  text-align: center;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.info-card:hover { transform: translateY(-2px); box-shadow: var(--shadow); }
+.info-card .card-icon { font-size: 2.2rem; margin-bottom: 8px; }
+.info-card .card-title {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: var(--text-light);
+  margin-bottom: 4px;
+}
+.info-card .card-value {
+  font-family: 'Outfit', sans-serif;
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--deep);
+}
+.info-card .card-note {
+  font-size: 0.78rem;
+  color: var(--text-light);
+  margin-top: 4px;
+  line-height: 1.5;
+}
+.info-card .card-note .tide-loading {
+  color: var(--reef);
+  font-style: italic;
+}
+
+/* ═══ MEETING POINTS ═══ */
+.meeting-points .point-card {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+  background: var(--card-bg);
+  border: 1px solid rgba(15,76,129,0.06);
+  border-radius: var(--radius);
+  padding: 20px;
+  margin-bottom: 12px;
+  box-shadow: var(--shadow);
+  transition: transform 0.2s;
+}
+.meeting-points .point-card:hover { transform: translateX(4px); }
+
+.point-time {
+  flex-shrink: 0;
+  background: linear-gradient(135deg, var(--ocean), var(--reef));
+  color: #fff;
+  border-radius: var(--radius-sm);
+  padding: 10px 14px;
+  text-align: center;
+  min-width: 72px;
+}
+.point-time .time { font-family: 'Outfit', sans-serif; font-size: 1.2rem; font-weight: 700; line-height: 1.2; }
+.point-time .period { font-size: 0.65rem; opacity: 0.8; text-transform: uppercase; }
+.point-details h3 { font-size: 1rem; font-weight: 700; color: var(--deep); margin-bottom: 4px; }
+.point-details p { font-size: 0.85rem; color: var(--text-light); line-height: 1.5; }
+.point-details .address {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.8rem;
+  color: var(--reef);
+  margin-top: 4px;
+}
+
+.point-tag {
+  display: inline-block;
+  background: var(--foam);
+  color: var(--ocean);
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 20px;
+  margin-top: 6px;
+}
+
+.map-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 10px;
+  padding: 8px 16px;
+  background: linear-gradient(135deg, var(--ocean), var(--reef));
+  color: #fff;
+  font-size: 0.78rem;
+  font-weight: 600;
+  border-radius: 24px;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.map-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 14px rgba(15,76,129,0.25); color: #fff; }
+.map-btn:active { transform: scale(0.97); }
+
+.point-warning {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  margin-top: 8px;
+  padding: 8px 12px;
+  background: #FFF5F0;
+  border-left: 3px solid var(--coral);
+  border-radius: 0 8px 8px 0;
+  font-size: 0.78rem;
+  color: var(--coral);
+  line-height: 1.5;
+  font-weight: 500;
+}
+
+/* ═══ TIMELINE ═══ */
+.timeline { position: relative; padding-left: 32px; }
+.timeline::before {
+  content: '';
+  position: absolute;
+  left: 11px;
+  top: 8px;
+  bottom: 8px;
+  width: 3px;
+  background: linear-gradient(180deg, var(--surface), var(--ocean), var(--deep));
+  border-radius: 3px;
+}
+.tl-item { position: relative; margin-bottom: 24px; padding-bottom: 4px; }
+.tl-item:last-child { margin-bottom: 0; }
+.tl-dot {
+  position: absolute;
+  left: -32px;
+  top: 6px;
+  width: 25px;
+  height: 25px;
+  border-radius: 50%;
+  background: #fff;
+  border: 3px solid var(--reef);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
+}
+.tl-dot .dot-icon { font-size: 0.7rem; }
+.tl-item.highlight .tl-dot {
+  background: var(--ocean);
+  border-color: var(--ocean);
+  box-shadow: 0 0 0 6px rgba(15,76,129,0.15);
+}
+.tl-item.highlight .tl-dot .dot-icon { filter: brightness(10); }
+.tl-content {
+  background: var(--card-bg);
+  border: 1px solid rgba(15,76,129,0.06);
+  border-radius: var(--radius);
+  padding: 18px 20px;
+  box-shadow: var(--shadow);
+}
+.tl-item.highlight .tl-content {
+  background: linear-gradient(135deg, var(--ocean), var(--deep));
+  border-color: transparent;
+  color: #fff;
+}
+.tl-time {
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--reef);
+  letter-spacing: 0.5px;
+  margin-bottom: 4px;
+}
+.tl-item.highlight .tl-time { color: var(--sun); }
+.tl-title { font-size: 1.05rem; font-weight: 700; margin-bottom: 2px; }
+.tl-desc { font-size: 0.85rem; color: var(--text-light); line-height: 1.6; }
+.tl-item.highlight .tl-desc { color: rgba(255,255,255,0.75); }
+.dive-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: rgba(255,255,255,0.15);
+  border: 1px solid rgba(255,255,255,0.25);
+  border-radius: 20px;
+  padding: 3px 12px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  margin-top: 8px;
+  color: #fff;
+}
+
+/* ═══ NOTES ═══ */
+.notes-grid { display: grid; gap: 16px; }
+.note-card {
+  background: var(--card-bg);
+  border: 1px solid rgba(15,76,129,0.06);
+  border-radius: var(--radius);
+  padding: 20px;
+  box-shadow: var(--shadow);
+}
+.note-card .note-icon { font-size: 1.5rem; margin-bottom: 8px; }
+.note-card h3 { font-size: 0.95rem; font-weight: 700; color: var(--deep); margin-bottom: 8px; }
+.note-card p { font-size: 0.85rem; color: var(--text-light); line-height: 1.7; }
+.note-card.warning { background: linear-gradient(135deg, #FFF5F5, #FFF0EE); border-color: rgba(255,107,90,0.15); }
+.note-card.warning h3 { color: var(--coral); }
+
+/* ═══ CHECKLIST ═══ */
+.checklist { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-top: 12px; }
+.check-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.82rem;
+  color: var(--text);
+  padding: 8px 10px;
+  background: var(--foam);
+  border-radius: 8px;
+}
+.check-item .ci { font-size: 0.9rem; }
+
+/* ═══ PHOTO ALBUM ═══ */
+.photo-banner {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background: linear-gradient(135deg, var(--sun), #FFAB40);
+  border-radius: var(--radius);
+  padding: 20px 24px;
+  margin-top: 28px;
+  box-shadow: var(--shadow);
+  transition: transform 0.2s;
+  color: var(--abyss);
+}
+.photo-banner:hover { transform: translateY(-2px); color: var(--abyss); }
+.photo-banner .pb-icon { font-size: 2.2rem; flex-shrink: 0; }
+.photo-banner .pb-text h3 { font-size: 1rem; font-weight: 700; margin-bottom: 2px; }
+.photo-banner .pb-text p { font-size: 0.82rem; opacity: 0.75; }
+.photo-banner .pb-arrow { margin-left: auto; font-size: 1.2rem; flex-shrink: 0; opacity: 0.6; }
+
+/* ═══ CONTACT ═══ */
+.contact-banner {
+  background: linear-gradient(135deg, var(--deep), var(--ocean));
+  border-radius: var(--radius);
+  padding: 32px 24px;
+  text-align: center;
+  color: #fff;
+  box-shadow: var(--shadow-lg);
+}
+.contact-banner h3 { font-size: 1.15rem; font-weight: 700; margin-bottom: 6px; }
+.contact-banner .role { font-size: 0.8rem; color: rgba(255,255,255,0.6); margin-bottom: 16px; }
+.contact-phone {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba(255,255,255,0.15);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(255,255,255,0.2);
+  border-radius: 40px;
+  padding: 14px 28px;
+  color: #fff;
+  font-family: 'Outfit', sans-serif;
+  font-size: 1.3rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+  transition: background 0.2s;
+  cursor: pointer;
+}
+.contact-phone:hover { background: rgba(255,255,255,0.25); color: #fff; }
+.contact-phone .phone-icon {
+  width: 28px; height: 28px;
+  background: var(--kelp);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.9rem;
+}
+.contact-note { font-size: 0.78rem; color: rgba(255,255,255,0.5); margin-top: 14px; }
+
+/* ═══ FOOTER ═══ */
+.footer { text-align: center; padding: 32px 20px 48px; background: var(--sand); }
+.footer-brand { font-family: 'Outfit', sans-serif; font-size: 1rem; font-weight: 600; color: var(--ocean); margin-bottom: 4px; }
+.footer-text { font-size: 0.78rem; color: var(--text-light); }
+.footer-wave { font-size: 1.8rem; margin-bottom: 12px; opacity: 0.5; }
+
+/* ═══ FADE ANIMATION ═══ */
+.fade-up { opacity: 0; transform: translateY(24px); transition: opacity 0.6s ease, transform 0.6s ease; }
+.fade-up.visible { opacity: 1; transform: translateY(0); }
+
+/* ═══ RESPONSIVE ═══ */
+
+/* ── Desktop (>1024px) ── */
+@media (min-width: 1025px) {
+  .hero { padding: 80px 40px 100px; }
+  .hero-content { max-width: 720px; }
+  .hero h1 { font-size: 3.5rem; }
+  .hero-subtitle { font-size: 1.25rem; }
+  .hero-info-grid { grid-template-columns: repeat(4, 1fr); gap: 14px; max-width: 640px; margin: 0 auto 32px; }
+
+  .quick-info { padding: 48px 40px; }
+  .info-cards { max-width: 800px; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+  .info-card { padding: 28px 20px; }
+  .info-card .card-icon { font-size: 2.5rem; }
+  .info-card .card-value { font-size: 1.4rem; }
+
+  .section { max-width: 800px; padding: 56px 40px; }
+
+  .meeting-points .point-card { padding: 24px 28px; }
+  .point-details h3 { font-size: 1.1rem; }
+
+  .notes-grid { grid-template-columns: repeat(2, 1fr); gap: 20px; }
+  .note-card { padding: 24px; }
+
+  .checklist { grid-template-columns: repeat(3, 1fr); }
+
+  .contact-banner { padding: 40px 32px; }
+  .contact-phone { font-size: 1.4rem; padding: 16px 32px; }
+
+  .footer { padding: 40px 20px 56px; }
+}
+
+/* ── Large desktop (>1280px) ── */
+@media (min-width: 1281px) {
+  .hero-content { max-width: 800px; }
+  .section { max-width: 880px; }
+  .info-cards { max-width: 880px; }
+  .notes-grid { grid-template-columns: repeat(3, 1fr); }
+}
+
+/* ── Tablet (481px – 1024px) ── */
+@media (min-width: 481px) and (max-width: 1024px) {
+  .hero { padding: 60px 32px 88px; }
+  .hero-content { max-width: 640px; }
+  .hero-info-grid { grid-template-columns: repeat(4, 1fr); gap: 10px; }
+
+  .quick-info { padding: 40px 32px; }
+  .info-cards { max-width: 720px; grid-template-columns: repeat(3, 1fr); }
+
+  .section { max-width: 720px; padding: 44px 32px; }
+
+  .notes-grid { grid-template-columns: repeat(2, 1fr); }
+
+  .checklist { grid-template-columns: repeat(2, 1fr); }
+}
+
+/* ── Mobile (<480px) ── */
+@media (max-width: 480px) {
+  .hero { padding: 48px 16px 72px; }
+  .hero h1 { font-size: 2rem; }
+  .hero-subtitle { font-size: 0.95rem; margin-bottom: 24px; }
+  .hero-info-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+  .hero-info-card { padding: 10px 8px; }
+  .hero-info-card .icon { font-size: 1.2rem; }
+  .hero-info-card .label { font-size: 0.6rem; }
+  .hero-info-card .value { font-size: 0.82rem; }
+
+  .quick-info { padding: 28px 16px; }
+  .info-cards { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+  .info-card { padding: 16px 12px; }
+  .info-card .card-icon { font-size: 1.8rem; }
+  .info-card .card-value { font-size: 1.1rem; }
+  .info-card .card-note { font-size: 0.72rem; }
+
+  .section { padding: 32px 16px; }
+  .section-title { font-size: 1.3rem; }
+
+  .meeting-points .point-card { padding: 16px; gap: 12px; }
+  .point-time { padding: 8px 10px; min-width: 62px; }
+  .point-time .time { font-size: 1.05rem; }
+  .point-details h3 { font-size: 0.92rem; }
+  .point-details p { font-size: 0.8rem; }
+  .map-btn { font-size: 0.72rem; padding: 7px 14px; }
+
+  .timeline { padding-left: 28px; }
+  .tl-dot { left: -28px; width: 22px; height: 22px; }
+  .tl-content { padding: 14px 16px; }
+  .tl-title { font-size: 0.95rem; }
+  .tl-desc { font-size: 0.8rem; }
+
+  .notes-grid { gap: 12px; }
+  .note-card { padding: 16px; }
+  .note-card h3 { font-size: 0.88rem; }
+  .note-card p { font-size: 0.8rem; }
+
+  .checklist { grid-template-columns: 1fr; gap: 6px; }
+  .check-item { font-size: 0.78rem; padding: 7px 10px; }
+
+  .contact-banner { padding: 24px 16px; }
+  .contact-phone { font-size: 1.05rem; padding: 12px 20px; gap: 8px; }
+  .contact-phone .phone-icon { width: 24px; height: 24px; font-size: 0.8rem; }
+
+  .photo-banner { flex-direction: column; text-align: center; padding: 16px 20px; }
+  .photo-banner .pb-arrow { display: none; }
+  .photo-banner .pb-text h3 { font-size: 0.92rem; }
+
+  .footer { padding: 28px 16px 40px; }
+}
+
+/* ── Small mobile (<360px) ── */
+@media (max-width: 360px) {
+  .hero h1 { font-size: 1.7rem; }
+  .brand-badge { font-size: 0.75rem; padding: 6px 14px; }
+  .hero-info-card .value { font-size: 0.75rem; }
+  .point-time { min-width: 56px; padding: 8px; }
+  .point-time .time { font-size: 0.95rem; }
+  .contact-phone { font-size: 0.95rem; padding: 10px 16px; }
+}
+
+/* ── Reduced motion ── */
+@media (prefers-reduced-motion: reduce) {
+  .bubble, .float-element, .scroll-hint { animation: none !important; }
+  .fade-up { opacity: 1; transform: none; transition: none; }
+}
+</style>
+</head>
+<body>
+
+<!-- ═══════════════ HERO ═══════════════ -->
+<section class="hero">
+  <div class="bubbles" id="bubbles"></div>
+  <div class="float-element" style="top:12%; left:8%; animation-delay:-1s; font-size:1.6rem;">🐠</div>
+  <div class="float-element" style="top:22%; right:10%; animation-delay:-3s; font-size:1.4rem;">🫧</div>
+  <div class="float-element" style="top:55%; left:5%; animation-delay:-5s; font-size:2rem;">🐙</div>
+  <div class="float-element" style="top:70%; right:8%; animation-delay:-2s; font-size:1.8rem;">🐢</div>
+  <div class="float-element" style="top:40%; right:15%; animation-delay:-4s; font-size:1.3rem;">🦑</div>
+  <div class="float-element" style="bottom:20%; left:15%; animation-delay:-6s; font-size:1.5rem;">🐟</div>
+
+  <div class="hero-content">
+    <div class="brand-badge"><span class="dot"></span>DIVIN'IN 潛靜</div>
+    <h1>東北角 <span class="accent">Fun Dive</span></h1>
+    <p class="hero-subtitle" id="heroSubtitle"></p>
+    <div class="hero-info-grid" id="heroInfoGrid"></div>
+  </div>
+  <div class="scroll-hint"><span>往下看完整行程</span><div class="arrow"></div></div>
+</section>
+
+<!-- Wave Divider -->
+<div class="wave-divider">
+  <svg viewBox="0 0 1440 80" preserveAspectRatio="none" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M0 40C240 80 480 0 720 40C960 80 1200 0 1440 40V80H0V40Z" fill="#ffffff"/>
+  </svg>
+</div>
+
+<!-- ═══════════════ QUICK INFO ═══════════════ -->
+<section class="quick-info">
+  <div class="info-cards" id="infoCards"></div>
+</section>
+
+<!-- ═══════════════ MEETING POINTS ═══════════════ -->
+<section class="section meeting-points">
+  <div class="section-label">Meeting Point</div>
+  <h2 class="section-title">集合地點 🗺️</h2>
+  <p style="font-size:0.9rem; color:var(--text-light); margin-bottom:20px;">
+    請依照你的前往方式，選擇對應的集合地點與時間。<strong style="color:var(--coral);">請務必準時！</strong>
+  </p>
+  <div id="meetingPoints"></div>
+</section>
+
+<!-- ═══════════════ TIMELINE ═══════════════ -->
+<section class="section">
+  <div class="section-label">Schedule</div>
+  <h2 class="section-title">活動時程表 ⏱️</h2>
+  <div class="timeline" id="timeline"></div>
+</section>
+
+<!-- ═══════════════ NOTES ═══════════════ -->
+<section class="section">
+  <div class="section-label">Reminders</div>
+  <h2 class="section-title">注意事項 📋</h2>
+
+  <div class="notes-grid">
+    <div class="note-card warning fade-up">
+      <div class="note-icon">☀️</div>
+      <h3>防曬與補水</h3>
+      <p id="noteWeather"></p>
+    </div>
+    <div class="note-card fade-up">
+      <div class="note-icon">🧊</div>
+      <h3>水溫提醒</h3>
+      <p id="noteWaterTemp"></p>
+    </div>
+    <div class="note-card fade-up">
+      <div class="note-icon">💰</div>
+      <h3>費用支付</h3>
+      <p>活動費用將於活動結束後收取，可使用<strong>轉帳</strong>方式支付。</p>
+    </div>
+    <div class="note-card fade-up">
+      <div class="note-icon">🚿</div>
+      <h3>盥洗說明</h3>
+      <p>現場備有可樂桶可簡單盥洗，盥洗完畢可直接返程。若想仔細盥洗，也可前往配合潛店使用熱水（備有有限車位）。</p>
+    </div>
+    <div class="note-card fade-up">
+      <div class="note-icon">📱</div>
+      <h3>保持聯繫</h3>
+      <p>活動當天請隨時<strong>保持手機暢通</strong>，以便聯繫與緊急狀況處理。</p>
+    </div>
+    <div class="note-card fade-up">
+      <div class="note-icon">🛢️</div>
+      <h3>氣瓶配送</h3>
+      <p>潛水氣瓶由 DIVIN'IN 潛靜統一運送至潛點，結束後統一送回，不需自行處理。</p>
+    </div>
+  </div>
+
+  <!-- Checklist -->
+  <div style="margin-top:28px;">
+    <h3 style="font-size:1rem; font-weight:700; color:var(--deep); margin-bottom:12px;">🎒 行前裝備確認</h3>
+    <div class="checklist">
+      <div class="check-item"><span class="ci">✅</span> 潛水證照（C 卡）</div>
+      <div class="check-item"><span class="ci">✅</span> 面鏡 / 呼吸管</div>
+      <div class="check-item"><span class="ci">✅</span> 防寒衣 / 背心</div>
+      <div class="check-item"><span class="ci">✅</span> 蛙鞋 / 套鞋</div>
+      <div class="check-item"><span class="ci">✅</span> 手套 / 頭套</div>
+      <div class="check-item"><span class="ci">✅</span> 電腦錶</div>
+      <div class="check-item"><span class="ci">✅</span> 相機 / GoPro</div>
+      <div class="check-item"><span class="ci">✅</span> 防曬用品</div>
+      <div class="check-item"><span class="ci">✅</span> 飲用水 / 點心</div>
+      <div class="check-item"><span class="ci">✅</span> 換洗衣物 / 毛巾</div>
+    </div>
+  </div>
+
+  <!-- Photo Album -->
+  <div id="photoAlbumSection"></div>
+</section>
+
+<!-- ═══════════════ CONTACT ═══════════════ -->
+<section class="section" style="padding-bottom:60px;">
+  <div class="section-label">Contact</div>
+  <h2 class="section-title">活動負責人 📞</h2>
+  <div class="contact-banner fade-up" id="contactBanner"></div>
+</section>
+
+<!-- ═══════════════ FOOTER ═══════════════ -->
+<footer class="footer">
+  <div class="footer-wave">🌊</div>
+  <div class="footer-brand">DIVIN'IN 潛靜</div>
+  <p class="footer-text">Have a great dive! 祝你有個美好的潛水日 🤿</p>
+</footer>
+
+<!-- ═══════════════ RENDER SCRIPT ═══════════════ -->
+<script>
+(function() {
+  const site = DIVE_SITES[CONFIG.diveSite];
+  if (!site) { document.body.innerHTML = '<h1 style="text-align:center;padding:80px 20px;">⚠️ 潛點「' + CONFIG.diveSite + '」不在資料庫中，請檢查 CONFIG.diveSite</h1>'; return; }
+
+  // ── Format date ──
+  const [y, m, d] = CONFIG.date.split('-');
+  const dateStr = `${m}/${d}（${CONFIG.weekday}）`;
+
+  // ── Hero ──
+  document.getElementById('heroSubtitle').textContent = `📅 ${dateStr}｜${CONFIG.diveSite}`;
+
+  document.getElementById('heroInfoGrid').innerHTML = `
+    <div class="hero-info-card"><div class="icon">🌡️</div><div class="label">地面氣溫</div><div class="value">${CONFIG.airTemp}</div></div>
+    <div class="hero-info-card"><div class="icon">🌊</div><div class="label">水溫</div><div class="value">${CONFIG.waterTemp}</div></div>
+    <div class="hero-info-card"><div class="icon">⛅</div><div class="label">天氣</div><div class="value">${CONFIG.weather}</div></div>
+    <div class="hero-info-card"><div class="icon">🏊‍♂️</div><div class="label">潛水支數</div><div class="value">${CONFIG.diveCount} 支氣瓶</div></div>
+  `;
+
+  // ── Quick Info Cards ──
+  document.getElementById('infoCards').innerHTML = `
+    <div class="info-card fade-up">
+      <div class="card-icon">🌊</div>
+      <div class="card-title">潮汐</div>
+      <div class="card-value" id="tideValue">${CONFIG.tide.low} 乾潮</div>
+      <div class="card-note" id="tideNote">${CONFIG.tide.high1} 滿潮 → ${CONFIG.tide.low} 乾潮<br>${CONFIG.tide.high2} 滿潮</div>
+    </div>
+    <div class="info-card fade-up" style="transition-delay:0.1s">
+      <div class="card-icon">📏</div>
+      <div class="card-title">浪高</div>
+      <div class="card-value" id="waveValue">${CONFIG.tide.waveHeight}</div>
+      <div class="card-note">海況平穩適合下水</div>
+    </div>
+    <div class="info-card fade-up" style="transition-delay:0.2s">
+      <div class="card-icon">📍</div>
+      <div class="card-title">預計潛點</div>
+      <div class="card-value">${CONFIG.diveSite}</div>
+      <div class="card-note">視當日海況可能調整</div>
+    </div>
+  `;
+
+  // ── Meeting Points ──
+  const mp = document.getElementById('meetingPoints');
+  const selfAddr = site.selfDrive.address ? `<div class="address">📍 ${site.selfDrive.location}（${site.selfDrive.address}）</div>` : `<div class="address">📍 ${site.selfDrive.location}</div>`;
+  const selfTag = site.selfDrive.tag ? `<div class="point-tag">${site.selfDrive.tag}</div>` : '';
+  const directWarning = site.warning ? `<div class="point-warning">⚠️ ${site.warning}</div>` : '';
+
+  mp.innerHTML = `
+    <div class="point-card fade-up">
+      <div class="point-time"><div class="time">${site.shuttle.time}</div><div class="period">AM</div></div>
+      <div class="point-details">
+        <h3>🚐 搭乘共乘車</h3>
+        <p>搭乘 DIVIN'IN 共乘車的夥伴</p>
+        <div class="address">📍 ${site.shuttle.location}</div>
+        <div class="point-tag">共乘接駁</div>
+        <br>
+        <a href="${site.shuttle.mapUrl}" target="_blank" rel="noopener" class="map-btn">📍 開啟 Google Maps 導航</a>
+      </div>
+    </div>
+    <div class="point-card fade-up">
+      <div class="point-time"><div class="time">${site.selfDrive.time}</div><div class="period">AM</div></div>
+      <div class="point-details">
+        <h3>🚗 自行前往海邊</h3>
+        <p>自行開車或騎車前往，不知道潛點位置的夥伴</p>
+        ${selfAddr}
+        ${selfTag}
+        <br>
+        <a href="${site.selfDrive.mapUrl}" target="_blank" rel="noopener" class="map-btn">📍 開啟 Google Maps 導航</a>
+      </div>
+    </div>
+    <div class="point-card fade-up">
+      <div class="point-time"><div class="time">${site.direct.time}</div><div class="period">AM</div></div>
+      <div class="point-details">
+        <h3>🏖️ 直接前往潛點</h3>
+        <p>已知道潛點位置的老手夥伴</p>
+        <div class="address">📍 ${site.direct.location}</div>
+        <div class="point-tag">潛點集合</div>
+        ${directWarning}
+        <a href="${site.direct.mapUrl}" target="_blank" rel="noopener" class="map-btn">📍 開啟 Google Maps 導航</a>
+      </div>
+    </div>
+  `;
+
+  // ── Timeline ──
+  const tl = document.getElementById('timeline');
+  tl.innerHTML = site.schedule.map((item, i) => {
+    const isDive = !!item.dive;
+    const cls = isDive ? 'tl-item highlight fade-up' : 'tl-item fade-up';
+    const badge = isDive ? `<div class="dive-badge">🫧 DIVE ${item.dive} · ~60 min</div>` : '';
+    return `
+      <div class="${cls}" style="transition-delay:${i * 0.05}s">
+        <div class="tl-dot"><span class="dot-icon">${item.icon}</span></div>
+        <div class="tl-content">
+          <div class="tl-time">${item.time}</div>
+          <div class="tl-title">${item.title}</div>
+          <div class="tl-desc">${item.desc}</div>
+          ${badge}
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  // ── Notes (dynamic text) ──
+  document.getElementById('noteWeather').innerHTML =
+    `本週天氣炎熱（${CONFIG.airTemp}），務必做好防曬並多喝水補充水分。午後可能有短暫雷陣雨，請隨身攜帶輕便雨具。`;
+  document.getElementById('noteWaterTemp').innerHTML =
+    `水溫${CONFIG.waterTemp}，${CONFIG.waterTempNote}。`;
+
+  // ── Photo Album ──
+  const pa = document.getElementById('photoAlbumSection');
+  if (CONFIG.photoAlbum) {
+    pa.innerHTML = `
+      <a href="${CONFIG.photoAlbum}" target="_blank" rel="noopener" class="photo-banner fade-up" style="margin-top:28px;">
+        <span class="pb-icon">📸</span>
+        <div class="pb-text">
+          <h3>活動照片</h3>
+          <p>點擊查看或上傳本次活動照片</p>
+        </div>
+        <span class="pb-arrow">→</span>
+      </a>
+    `;
+  }
+
+  // ── Contact ──
+  const phoneClean = CONFIG.leader.phone.replace(/-/g, '');
+  document.getElementById('contactBanner').innerHTML = `
+    <h3>${CONFIG.leader.name}</h3>
+    <div class="role">本週活動負責人 · DIVIN'IN 潛靜</div>
+    <a href="tel:${phoneClean}" class="contact-phone">
+      <span class="phone-icon">📞</span>
+      ${CONFIG.leader.phone}
+    </a>
+    <div class="contact-note">點擊即可撥打電話</div>
+  `;
+
+  // ── Bubbles ──
+  const bc = document.getElementById('bubbles');
+  for (let i = 0; i < 18; i++) {
+    const b = document.createElement('div');
+    b.className = 'bubble';
+    const size = Math.random() * 24 + 6;
+    b.style.width = size + 'px';
+    b.style.height = size + 'px';
+    b.style.left = Math.random() * 100 + '%';
+    b.style.animationDuration = (Math.random() * 8 + 6) + 's';
+    b.style.animationDelay = (Math.random() * 10) + 's';
+    bc.appendChild(b);
+  }
+
+  // ── Scroll Fade Animations ──
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target); }
+    });
+  }, { threshold: 0.15, rootMargin: '0px 0px -40px 0px' });
+  document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
+
+  // ── CWA Tide API (optional) ──
+  if (CONFIG.cwaApiKey) {
+    fetchTideData();
+  }
+
+  async function fetchTideData() {
+    try {
+      const url = `https://opendata.cwa.gov.tw/api/v1/rest/datastore/F-A0021-001?Authorization=${CONFIG.cwaApiKey}&LocationName=${encodeURIComponent(CONFIG.cwaStation)}&Date=${CONFIG.date}`;
+      const res = await fetch(url);
+      if (!res.ok) throw new Error('API 回應異常');
+      const data = await res.json();
+
+      const locations = data?.records?.location;
+      if (!locations || locations.length === 0) throw new Error('找不到測站');
+
+      const loc = locations[0];
+      const targetDate = CONFIG.date;
+
+      // 找到對應日期的潮汐資料
+      let tides = [];
+      if (loc.validTime) {
+        for (const vt of loc.validTime) {
+          const dateMatch = vt.startTime?.startsWith(targetDate) || vt.Date === targetDate;
+          if (dateMatch && vt.weatherElement) {
+            for (const el of vt.weatherElement) {
+              if (el.elementName === '潮汐' || el.elementName === 'TideForcast' || el.elementName === 'Tide') {
+                // Parse tide times
+                if (el.time) {
+                  tides = el.time.map(t => ({
+                    type: t.parameter?.parameterName || t.TideType,
+                    time: t.dataTime || t.DateTime
+                  }));
+                }
+              }
+            }
+          }
+        }
+      }
+
+      // Fallback: try alternative data structure
+      if (tides.length === 0 && loc.tideForecasts) {
+        const forecast = loc.tideForecasts.find(f =>
+          f.daily?.some(d => d.date === targetDate)
+        );
+        if (forecast) {
+          const daily = forecast.daily.find(d => d.date === targetDate);
+          if (daily && daily.tideData) {
+            tides = daily.tideData;
+          }
+        }
+      }
+
+      if (tides.length > 0) {
+        // Update tide display
+        const highs = tides.filter(t => t.type === '滿潮' || t.type === 'High');
+        const lows = tides.filter(t => t.type === '乾潮' || t.type === 'Low');
+
+        const formatTime = (dt) => {
+          if (!dt) return '--:--';
+          const d = new Date(dt);
+          return d.getHours().toString().padStart(2, '0') + ':' + d.getMinutes().toString().padStart(2, '0');
+        };
+
+        const h1 = highs[0] ? formatTime(highs[0].time) : '--:--';
+        const lo = lows[0] ? formatTime(lows[0].time) : '--:--';
+        const h2 = highs[1] ? formatTime(highs[1].time) : '--:--';
+
+        const tv = document.getElementById('tideValue');
+        const tn = document.getElementById('tideNote');
+        if (tv) tv.textContent = lo + ' 乾潮';
+        if (tn) tn.innerHTML = h1 + ' 滿潮 → ' + lo + ' 乾潮<br>' + h2 + ' 滿潮<br><span style="font-size:0.7rem;color:var(--kelp);">✓ 氣象署自動更新</span>';
+      }
+    } catch (err) {
+      console.warn('CWA 潮汐 API 讀取失敗，使用手動資料：', err.message);
+      // 手動資料已經在初始渲染時填入，不需額外處理
+    }
+  }
+
+})();
+</script>
+
+</body>
+</html>
