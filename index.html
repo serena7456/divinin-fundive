@@ -25,8 +25,8 @@
 const CONFIG = {
 
   // ── 📅 日期 ──
-  date:     "2025-05-24",       // 格式：YYYY-MM-DD
-  weekday:  "週日",              // 週六 / 週日
+  date:     "2026-06-13",       // 格式：YYYY-MM-DD
+  weekday:  "週六",              // 週六 / 週日
 
   // ── 🤿 潛點（改這個，集合地點 & 行程自動連動）──
   //    可選值："蝙蝠洞" / "龍洞3號" / "蚊子坑"
@@ -39,22 +39,22 @@ const CONFIG = {
   //    👉 申請網址：https://opendata.cwa.gov.tw/
   //    填入 API Key → 天氣、氣溫、潮汐全自動抓取
   //    留空 → 使用下方手動值
-  cwaApiKey: "",
+  cwaApiKey: "CWA-D45B9403-3AF4-4E95-81C7-EA2397E19B63",
 
   // ── 🌤️ 天氣（備用 / 手動覆蓋）──
   //    有填 API Key 時，以下值會被自動覆蓋
   //    沒填 API Key 或 API 抓取失敗時，使用以下手動值
   weather:       "多雲 / 午後雷雨",
-  airTemp:       "25 – 32°C",
-  waterTemp:     "約 26°C",
+  airTemp:       "24 – 26°C",
+  waterTemp:     "約 27°C",
   waterTempNote: "時有冷流，若較怕冷背心等配件建議攜帶",
 
   // ── 🌊 潮汐 & 浪高（備用 / 手動覆蓋）──
   tide: {
-    high1:      "04:07",
-    low:        "10:05",
-    high2:      "15:43",
-    waveHeight: "0 – 50 CM"
+    high1:      "05:05",
+    low:        "12:50",
+    high2:      "20:55",
+    waveHeight: "50 – 100 CM"
   },
 
   // ── 👤 活動負責人 ──
@@ -918,10 +918,9 @@ a { color: var(--reef); text-decoration: none; }
     <h3 style="font-size:1rem; font-weight:700; color:var(--deep); margin-bottom:12px;">🎒 行前裝備確認</h3>
     <div class="checklist">
       <div class="check-item"><span class="ci">✅</span> 潛水證照（C 卡）</div>
-      <div class="check-item"><span class="ci">✅</span> 面鏡 / 呼吸管</div>
-      <div class="check-item"><span class="ci">✅</span> 防寒衣 / 背心</div>
-      <div class="check-item"><span class="ci">✅</span> 蛙鞋 / 套鞋</div>
-      <div class="check-item"><span class="ci">✅</span> 手套 / 頭套</div>
+      <div class="check-item"><span class="ci">✅</span> 身分證 / 健保卡</div>
+      <div class="check-item"><span class="ci">✅</span> 輕裝</div>
+      <div class="check-item"><span class="ci">✅</span> 重裝</div>
       <div class="check-item"><span class="ci">✅</span> 電腦錶</div>
       <div class="check-item"><span class="ci">✅</span> 相機 / GoPro</div>
       <div class="check-item"><span class="ci">✅</span> 防曬用品</div>
@@ -981,7 +980,7 @@ a { color: var(--reef); text-decoration: none; }
       <div class="card-icon">📏</div>
       <div class="card-title">浪高</div>
       <div class="card-value" id="waveValue">${CONFIG.tide.waveHeight}</div>
-      <div class="card-note">海況平穩適合下水</div>
+      <div class="card-note">海況稍有起伏，請聽從導潛級教練指示</div>
     </div>
     <div class="info-card fade-up" style="transition-delay:0.2s">
       <div class="card-icon">📍</div>
