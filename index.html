@@ -25,8 +25,8 @@
 const CONFIG = {
 
   // ── 📅 日期 ──
-  date:     "2026-06-13",       // 格式：YYYY-MM-DD
-  weekday:  "週六",              // 週六 / 週日
+  date:     "2025-05-24",       // 格式：YYYY-MM-DD
+  weekday:  "週日",              // 週六 / 週日
 
   // ── 🤿 潛點（改這個，集合地點 & 行程自動連動）──
   //    可選值："蝙蝠洞" / "龍洞3號" / "蚊子坑"
@@ -35,27 +35,27 @@ const CONFIG = {
   // ── 🏊 潛水支數 ──
   diveCount: 2,
 
-  // ── 🌤️ 天氣（手動填寫）──
-  weather:   "多雲 / 午後雷雨",
-  airTemp:   "25 – 32°C",
-  waterTemp: "約 26°C",
+  // ── 🔑 中央氣象署 Open Data API ──
+  //    👉 申請網址：https://opendata.cwa.gov.tw/
+  //    填入 API Key → 天氣、氣溫、潮汐全自動抓取
+  //    留空 → 使用下方手動值
+  cwaApiKey: "",
+
+  // ── 🌤️ 天氣（備用 / 手動覆蓋）──
+  //    有填 API Key 時，以下值會被自動覆蓋
+  //    沒填 API Key 或 API 抓取失敗時，使用以下手動值
+  weather:       "多雲 / 午後雷雨",
+  airTemp:       "25 – 32°C",
+  waterTemp:     "約 26°C",
   waterTempNote: "時有冷流，若較怕冷背心等配件建議攜帶",
 
-  // ── 🌊 潮汐 & 浪高 ──
-  //    如果 cwaApiKey 有填 → 潮汐自動從氣象署抓取，以下手動值為備用
-  //    如果 cwaApiKey 留空 → 
+  // ── 🌊 潮汐 & 浪高（備用 / 手動覆蓋）──
   tide: {
     high1:      "04:07",
     low:        "10:05",
     high2:      "15:43",
     waveHeight: "0 – 50 CM"
   },
-
-  // ── 🔑 中央氣象署 Open Data API ──
-  //    申請網址：https://opendata.cwa.gov.tw/
-  //    填入 API Key 即自動抓潮汐，留空則用上方手動值
-  cwaApiKey:  "CWA-D45B9403-3AF4-4E95-81C7-EA2397E19B63",
-  cwaStation: "基隆",
 
   // ── 👤 活動負責人 ──
   leader: {
@@ -65,6 +65,14 @@ const CONFIG = {
 
   // ── 📸 活動照片連結（Google Drive 等）──
   photoAlbum: "https://drive.google.com/drive/folders/12ISvszA74Rfswn2L7Ik59ypNiLBF2F9r?usp=sharing"
+};
+
+// ── 潛點對應的氣象測站（自動對應，不需修改）──
+// 天氣用鄉鎮名稱，潮汐用 CWA 官方地點名稱（見 F-A0021-001 文件）
+const WEATHER_MAP = {
+  "蝙蝠洞": { township: "瑞芳區", tideLocation: "新北市瑞芳區" },
+  "龍洞3號": { township: "貢寮區", tideLocation: "潛點龍洞灣水域 B 區北側" },
+  "蚊子坑": { township: "貢寮區", tideLocation: "潛點龍洞南口水域 C 區" }
 };
 
 
@@ -913,11 +921,12 @@ a { color: var(--reef); text-decoration: none; }
 
   // ── Hero ──
   document.getElementById('heroSubtitle').textContent = `📅 ${dateStr}｜${CONFIG.diveSite}`;
+  const loadingHint = CONFIG.cwaApiKey ? ' <span style="opacity:0.5;font-size:0.65rem;">⏳</span>' : '';
 
   document.getElementById('heroInfoGrid').innerHTML = `
-    <div class="hero-info-card"><div class="icon">🌡️</div><div class="label">地面氣溫</div><div class="value">${CONFIG.airTemp}</div></div>
+    <div class="hero-info-card"><div class="icon">🌡️</div><div class="label">地面氣溫</div><div class="value" id="heroAirTemp">${CONFIG.airTemp}${loadingHint}</div></div>
     <div class="hero-info-card"><div class="icon">🌊</div><div class="label">水溫</div><div class="value">${CONFIG.waterTemp}</div></div>
-    <div class="hero-info-card"><div class="icon">⛅</div><div class="label">天氣</div><div class="value">${CONFIG.weather}</div></div>
+    <div class="hero-info-card"><div class="icon">⛅</div><div class="label">天氣</div><div class="value" id="heroWeather">${CONFIG.weather}${loadingHint}</div></div>
     <div class="hero-info-card"><div class="icon">🏊‍♂️</div><div class="label">潛水支數</div><div class="value">${CONFIG.diveCount} 支氣瓶</div></div>
   `;
 
@@ -1059,81 +1068,220 @@ a { color: var(--reef); text-decoration: none; }
   }, { threshold: 0.15, rootMargin: '0px 0px -40px 0px' });
   document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
 
-  // ── CWA Tide API (optional) ──
+  // ══════════════════════════════════════════════════
+  // 🌤️🌊 CWA 氣象署自動抓取（天氣 + 氣溫 + 潮汐）
+  // ══════════════════════════════════════════════════
   if (CONFIG.cwaApiKey) {
-    fetchTideData();
+    const stationInfo = WEATHER_MAP[CONFIG.diveSite] || { township: '瑞芳區', tideLocation: '新北市瑞芳區' };
+    fetchWeatherData(stationInfo.township);
+    fetchTideData(stationInfo.tideLocation);
   }
 
-  async function fetchTideData() {
+  // ── 天氣 & 氣溫自動抓取 ──
+  async function fetchWeatherData(township) {
     try {
-      const url = `https://opendata.cwa.gov.tw/api/v1/rest/datastore/F-A0021-001?Authorization=${CONFIG.cwaApiKey}&LocationName=${encodeURIComponent(CONFIG.cwaStation)}&Date=${CONFIG.date}`;
+      // F-D0047-071：新北市未來1週鄉鎮天氣預報
+      const url = 'https://opendata.cwa.gov.tw/api/v1/rest/datastore/F-D0047-071'
+        + '?Authorization=' + CONFIG.cwaApiKey
+        + '&locationName=' + encodeURIComponent(township)
+        + '&elementName=Wx,MinT,MaxT,PoP,WeatherDescription';
+
+      console.info('🌤️ 天氣 API 請求：', township);
       const res = await fetch(url);
-      if (!res.ok) throw new Error('API 回應異常');
+      if (!res.ok) throw new Error('天氣 API 回應 ' + res.status);
+      const data = await res.json();
+      console.log('🌤️ 天氣 API 原始回應：', JSON.stringify(data).substring(0, 500));
+
+      // 解析回應結構
+      const locations = data?.records?.locations;
+      if (!locations || locations.length === 0) throw new Error('找不到地區資料');
+
+      const loc = locations[0]?.location?.find(l => l.locationName === township);
+      if (!loc) throw new Error('找不到 ' + township);
+
+      const targetDate = CONFIG.date;
+      let wx = '', minT = '', maxT = '', pop = '';
+
+      for (const elem of loc.weatherElement) {
+        // 找到涵蓋目標日期白天的時段
+        const matchingTime = elem.time?.find(t => {
+          const start = t.startTime?.substring(0, 10);
+          const end = t.endTime?.substring(0, 10);
+          // 優先匹配白天時段 (06:00-18:00)
+          return (start === targetDate || end === targetDate)
+            && t.startTime?.includes('06:00');
+        }) || elem.time?.find(t => {
+          // fallback：只要日期匹配就好
+          return t.startTime?.substring(0, 10) === targetDate;
+        });
+
+        if (!matchingTime) continue;
+
+        const val = matchingTime.elementValue?.[0]?.value
+          || matchingTime.parameter?.parameterName
+          || '';
+
+        switch (elem.elementName) {
+          case 'Wx':          wx = val; break;
+          case 'MinT':        minT = val; break;
+          case 'MaxT':        maxT = val; break;
+          case 'PoP':         pop = val; break;
+        }
+      }
+
+      // 更新頁面
+      if (minT && maxT) {
+        const tempStr = minT + ' – ' + maxT + '°C';
+        const heroTemp = document.getElementById('heroAirTemp');
+        if (heroTemp) heroTemp.innerHTML = tempStr;
+        document.getElementById('noteWeather').innerHTML =
+          '本週天氣（' + tempStr + '），務必做好防曬並多喝水補充水分。'
+          + (pop && parseInt(pop) > 30 ? '降雨機率 ' + pop + '%，請隨身攜帶輕便雨具。' : '');
+      }
+
+      if (wx) {
+        const heroWx = document.getElementById('heroWeather');
+        if (heroWx) heroWx.innerHTML = wx;
+      }
+
+      console.info('✅ 天氣資料已從氣象署自動更新（' + township + '）');
+    } catch (err) {
+      console.warn('⚠️ 天氣 API 讀取失敗，使用手動資料：', err.message);
+      // 清除 loading 指示器
+      const heroTemp = document.getElementById('heroAirTemp');
+      const heroWx = document.getElementById('heroWeather');
+      if (heroTemp) heroTemp.textContent = CONFIG.airTemp;
+      if (heroWx) heroWx.textContent = CONFIG.weather;
+    }
+  }
+
+  // ── 潮汐自動抓取 ──
+  async function fetchTideData(tideLocation) {
+    try {
+      // F-A0021-001：未來1個月潮汐預報
+      const url = 'https://opendata.cwa.gov.tw/api/v1/rest/datastore/F-A0021-001'
+        + '?Authorization=' + CONFIG.cwaApiKey
+        + '&LocationName=' + encodeURIComponent(tideLocation);
+
+      console.info('🌊 潮汐 API 請求：', tideLocation);
+      const res = await fetch(url);
+      if (!res.ok) throw new Error('潮汐 API 回應 ' + res.status);
       const data = await res.json();
 
-      const locations = data?.records?.location;
-      if (!locations || locations.length === 0) throw new Error('找不到測站');
+      // 方便 debug：在 Console 印出完整回應結構
+      console.log('🌊 潮汐 API 原始回應：', JSON.stringify(data).substring(0, 500));
 
-      const loc = locations[0];
       const targetDate = CONFIG.date;
+      let tideEntries = [];
 
-      // 找到對應日期的潮汐資料
-      let tides = [];
-      if (loc.validTime) {
-        for (const vt of loc.validTime) {
-          const dateMatch = vt.startTime?.startsWith(targetDate) || vt.Date === targetDate;
-          if (dateMatch && vt.weatherElement) {
-            for (const el of vt.weatherElement) {
-              if (el.elementName === '潮汐' || el.elementName === 'TideForcast' || el.elementName === 'Tide') {
-                // Parse tide times
+      // ── 解析策略：遍歷所有可能的回應結構 ──
+
+      // 取得 location 資料（可能是 records.location 或 records.TideForecasts）
+      const records = data?.records;
+      if (!records) throw new Error('回應中沒有 records');
+
+      // 路徑 A：records.location[].validTime[]
+      if (records.location && Array.isArray(records.location)) {
+        const loc = records.location[0];
+        if (loc?.validTime) {
+          for (const vt of loc.validTime) {
+            if (vt.weatherElement) {
+              for (const el of vt.weatherElement) {
                 if (el.time) {
-                  tides = el.time.map(t => ({
-                    type: t.parameter?.parameterName || t.TideType,
-                    time: t.dataTime || t.DateTime
-                  }));
+                  for (const t of el.time) {
+                    const dt = t.dataTime || t.DateTime || '';
+                    if (dt.startsWith(targetDate)) {
+                      tideEntries.push({
+                        type: t.parameter?.parameterName || '',
+                        time: dt
+                      });
+                    }
+                  }
                 }
               }
             }
           }
         }
-      }
-
-      // Fallback: try alternative data structure
-      if (tides.length === 0 && loc.tideForecasts) {
-        const forecast = loc.tideForecasts.find(f =>
-          f.daily?.some(d => d.date === targetDate)
-        );
-        if (forecast) {
-          const daily = forecast.daily.find(d => d.date === targetDate);
-          if (daily && daily.tideData) {
-            tides = daily.tideData;
+        // 路徑 A2：records.location[].time[] (直接在 location 下)
+        if (tideEntries.length === 0 && loc?.time) {
+          for (const t of loc.time) {
+            const dt = t.dataTime || t.DateTime || '';
+            if (dt.startsWith(targetDate)) {
+              tideEntries.push({
+                type: t.parameter?.parameterName || '',
+                time: dt
+              });
+            }
           }
         }
       }
 
-      if (tides.length > 0) {
-        // Update tide display
-        const highs = tides.filter(t => t.type === '滿潮' || t.type === 'High');
-        const lows = tides.filter(t => t.type === '乾潮' || t.type === 'Low');
+      // 路徑 B：records.TideForecasts.Location.TimePeriods.Daily[]
+      if (tideEntries.length === 0 && records.TideForecasts) {
+        const tf = records.TideForecasts;
+        const loc = tf.Location || tf.location || (Array.isArray(tf) ? tf[0] : null);
+        if (loc) {
+          const periods = loc.TimePeriods || loc.timePeriods;
+          const dailyList = periods?.Daily || periods?.daily || [];
+          const dayArr = Array.isArray(dailyList) ? dailyList : [dailyList];
+          for (const day of dayArr) {
+            if ((day.Date || day.date || '').startsWith(targetDate)) {
+              const times = day.Time || day.time || [];
+              const timeArr = Array.isArray(times) ? times : [times];
+              for (const t of timeArr) {
+                tideEntries.push({
+                  type: t.Tide || t.tide || '',
+                  time: t.DateTime || t.dateTime || ''
+                });
+              }
+              break;
+            }
+          }
+        }
+      }
 
-        const formatTime = (dt) => {
+      // 路徑 C：整個 records 就是 array
+      if (tideEntries.length === 0 && Array.isArray(records)) {
+        for (const item of records) {
+          const dt = item.DateTime || item.dataTime || item.time || '';
+          if (dt.startsWith(targetDate)) {
+            tideEntries.push({
+              type: item.Tide || item.type || item.parameter?.parameterName || '',
+              time: dt
+            });
+          }
+        }
+      }
+
+      console.log('🌊 解析到的潮汐資料：', tideEntries);
+
+      if (tideEntries.length > 0) {
+        const highs = tideEntries.filter(t => /滿潮|High|high/i.test(t.type));
+        const lows = tideEntries.filter(t => /乾潮|Low|low/i.test(t.type));
+
+        const fmtTime = (dt) => {
           if (!dt) return '--:--';
-          const d = new Date(dt);
-          return d.getHours().toString().padStart(2, '0') + ':' + d.getMinutes().toString().padStart(2, '0');
+          const match = dt.match(/(\d{2}):(\d{2})/);
+          return match ? match[0] : '--:--';
         };
 
-        const h1 = highs[0] ? formatTime(highs[0].time) : '--:--';
-        const lo = lows[0] ? formatTime(lows[0].time) : '--:--';
-        const h2 = highs[1] ? formatTime(highs[1].time) : '--:--';
+        const h1 = highs[0] ? fmtTime(highs[0].time) : '--:--';
+        const lo = lows[0] ? fmtTime(lows[0].time) : '--:--';
+        const h2 = highs[1] ? fmtTime(highs[1].time) : '--:--';
 
         const tv = document.getElementById('tideValue');
         const tn = document.getElementById('tideNote');
         if (tv) tv.textContent = lo + ' 乾潮';
-        if (tn) tn.innerHTML = h1 + ' 滿潮 → ' + lo + ' 乾潮<br>' + h2 + ' 滿潮<br><span style="font-size:0.7rem;color:var(--kelp);">✓ 氣象署自動更新</span>';
+        if (tn) tn.innerHTML = h1 + ' 滿潮 → ' + lo + ' 乾潮<br>' + h2 + ' 滿潮'
+          + '<br><span style="font-size:0.7rem;color:var(--kelp);">✓ 氣象署自動更新（' + tideLocation + '）</span>';
+
+        console.info('✅ 潮汐更新完成：滿潮 ' + h1 + '/' + h2 + '，乾潮 ' + lo);
+      } else {
+        console.warn('⚠️ 找不到 ' + targetDate + ' 的潮汐資料');
+        console.warn('💡 請打開 Console 查看上方「原始回應」來確認資料結構');
       }
     } catch (err) {
-      console.warn('CWA 潮汐 API 讀取失敗，使用手動資料：', err.message);
-      // 手動資料已經在初始渲染時填入，不需額外處理
+      console.warn('⚠️ 潮汐 API 讀取失敗，使用手動資料：', err.message);
     }
   }
 
