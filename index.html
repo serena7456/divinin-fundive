@@ -25,8 +25,8 @@
 const CONFIG = {
 
   // ── 📅 日期 ──
-  date:     "2026-06-11",       // 格式：YYYY-MM-DD
-  weekday:  "週六",              // 週六 / 週日
+  date:     "2025-05-24",       // 格式：YYYY-MM-DD
+  weekday:  "週日",              // 週六 / 週日
 
   // ── 🤿 潛點（改這個，集合地點 & 行程自動連動）──
   //    可選值："蝙蝠洞" / "龍洞3號" / "蚊子坑"
@@ -39,28 +39,30 @@ const CONFIG = {
   //    👉 申請網址：https://opendata.cwa.gov.tw/
   //    填入 API Key → 天氣、氣溫、潮汐全自動抓取
   //    留空 → 使用下方手動值
-  cwaApiKey: "CWA-D45B9403-3AF4-4E95-81C7-EA2397E19B63",
+  cwaApiKey: "",
 
   // ── 🌤️ 天氣（備用 / 手動覆蓋）──
   //    有填 API Key 時，以下值會被自動覆蓋
   //    沒填 API Key 或 API 抓取失敗時，使用以下手動值
   weather:       "多雲 / 午後雷雨",
-  airTemp:       "24 – 26°C",
-  waterTemp:     "約 27°C",
+  airTemp:       "25 – 32°C",
+  waterTemp:     "約 26°C",
   waterTempNote: "時有冷流，若較怕冷背心等配件建議攜帶",
 
   // ── 🌊 潮汐 & 浪高（備用 / 手動覆蓋）──
   tide: {
-    high1:      "05:05",
-    low:        "12:50",
-    high2:      "20:55",
-    waveHeight: "50 – 100 CM"
+    high1:      "04:07",
+    low:        "10:05",
+    high2:      "15:43",
+    waveHeight: "0 – 50 CM"
   },
 
   // ── 👤 活動負責人 ──
   leader: {
     name:  "Linda 教練",
-    phone: "0954-021-482"
+    phone: "0954-021-482",
+    lineName: "潛靜小編",                                  // 留空則不顯示 LINE 按鈕
+    lineUrl:  "https://line.me/R/ti/p/%40647dfcwd"
   },
 
   // ── 📸 活動照片連結（Google Drive 等）──
@@ -68,11 +70,12 @@ const CONFIG = {
 };
 
 // ── 潛點對應的氣象測站（自動對應，不需修改）──
-// 天氣用鄉鎮名稱，潮汐用 CWA 官方地點名稱（見 F-A0021-001 文件）
+// 天氣與潮汐都用「鄉鎮名稱」（不含縣市前綴）
+// F-A0021-001 潮汐預報只到鄉鎮層級，LocationName 須為氣象署鄉鎮名稱（完全比對）
 const WEATHER_MAP = {
-  "蝙蝠洞": { township: "瑞芳區", tideLocation: "新北市瑞芳區" },
-  "龍洞3號": { township: "貢寮區", tideLocation: "潛點龍洞灣水域 B 區北側" },
-  "蚊子坑": { township: "貢寮區", tideLocation: "潛點龍洞南口水域 C 區" }
+  "蝙蝠洞": { township: "瑞芳區", tideLocation: "瑞芳區" },
+  "龍洞3號": { township: "貢寮區", tideLocation: "貢寮區" },
+  "蚊子坑": { township: "貢寮區", tideLocation: "貢寮區" }
 };
 
 
@@ -650,6 +653,40 @@ a { color: var(--reef); text-decoration: none; }
 }
 .contact-note { font-size: 0.78rem; color: rgba(255,255,255,0.5); margin-top: 14px; }
 
+.contact-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+.contact-line {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background: #06C755;
+  border: 1px solid rgba(255,255,255,0.2);
+  border-radius: 40px;
+  padding: 14px 28px;
+  color: #fff;
+  font-family: 'Outfit', sans-serif;
+  font-size: 1.05rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  transition: background 0.2s, transform 0.2s;
+  cursor: pointer;
+}
+.contact-line:hover { background: #05b54d; color: #fff; transform: translateY(-1px); }
+.contact-line .line-icon {
+  width: 28px; height: 28px;
+  background: #fff;
+  color: #06C755;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.9rem;
+}
+
 /* ═══ FOOTER ═══ */
 .footer { text-align: center; padding: 32px 20px 48px; background: var(--sand); }
 .footer-brand { font-family: 'Outfit', sans-serif; font-size: 1rem; font-weight: 600; color: var(--ocean); margin-bottom: 4px; }
@@ -761,6 +798,8 @@ a { color: var(--reef); text-decoration: none; }
   .contact-banner { padding: 24px 16px; }
   .contact-phone { font-size: 1.05rem; padding: 12px 20px; gap: 8px; }
   .contact-phone .phone-icon { width: 24px; height: 24px; font-size: 0.8rem; }
+  .contact-line { font-size: 0.95rem; padding: 12px 20px; gap: 8px; }
+  .contact-line .line-icon { width: 24px; height: 24px; font-size: 0.8rem; }
 
   .photo-banner { flex-direction: column; text-align: center; padding: 16px 20px; }
   .photo-banner .pb-arrow { display: none; }
@@ -879,9 +918,10 @@ a { color: var(--reef); text-decoration: none; }
     <h3 style="font-size:1rem; font-weight:700; color:var(--deep); margin-bottom:12px;">🎒 行前裝備確認</h3>
     <div class="checklist">
       <div class="check-item"><span class="ci">✅</span> 潛水證照（C 卡）</div>
-      <div class="check-item"><span class="ci">✅</span> 健保卡 / 身分證</div>
-      <div class="check-item"><span class="ci">✅</span> 輕裝</div>
-      <div class="check-item"><span class="ci">✅</span> 重裝</div>
+      <div class="check-item"><span class="ci">✅</span> 面鏡 / 呼吸管</div>
+      <div class="check-item"><span class="ci">✅</span> 防寒衣 / 背心</div>
+      <div class="check-item"><span class="ci">✅</span> 蛙鞋 / 套鞋</div>
+      <div class="check-item"><span class="ci">✅</span> 手套 / 頭套</div>
       <div class="check-item"><span class="ci">✅</span> 電腦錶</div>
       <div class="check-item"><span class="ci">✅</span> 相機 / GoPro</div>
       <div class="check-item"><span class="ci">✅</span> 防曬用品</div>
@@ -941,7 +981,7 @@ a { color: var(--reef); text-decoration: none; }
       <div class="card-icon">📏</div>
       <div class="card-title">浪高</div>
       <div class="card-value" id="waveValue">${CONFIG.tide.waveHeight}</div>
-      <div class="card-note">海況稍有起伏，請聽從導潛及教練的指示</div>
+      <div class="card-note">海況平穩適合下水</div>
     </div>
     <div class="info-card fade-up" style="transition-delay:0.2s">
       <div class="card-icon">📍</div>
@@ -1035,14 +1075,22 @@ a { color: var(--reef); text-decoration: none; }
 
   // ── Contact ──
   const phoneClean = CONFIG.leader.phone.replace(/-/g, '');
+  const lineBtn = CONFIG.leader.lineUrl ? `
+      <a href="${CONFIG.leader.lineUrl}" target="_blank" rel="noopener" class="contact-line">
+        <span class="line-icon">💬</span>
+        ${CONFIG.leader.lineName || '潛靜小編'}
+      </a>` : '';
   document.getElementById('contactBanner').innerHTML = `
     <h3>${CONFIG.leader.name}</h3>
     <div class="role">本週活動負責人 · DIVIN'IN 潛靜</div>
-    <a href="tel:${phoneClean}" class="contact-phone">
-      <span class="phone-icon">📞</span>
-      ${CONFIG.leader.phone}
-    </a>
-    <div class="contact-note">點擊即可撥打電話</div>
+    <div class="contact-actions">
+      <a href="tel:${phoneClean}" class="contact-phone">
+        <span class="phone-icon">📞</span>
+        ${CONFIG.leader.phone}
+      </a>
+      ${lineBtn}
+    </div>
+    <div class="contact-note">${lineBtn ? '點擊撥打電話，或加 LINE 向小編詢問' : '點擊即可撥打電話'}</div>
   `;
 
   // ── Bubbles ──
@@ -1215,10 +1263,12 @@ a { color: var(--reef); text-decoration: none; }
         }
       }
 
-      // 路徑 B：records.TideForecasts.Location.TimePeriods.Daily[]
+      // 路徑 B：records.TideForecasts[].Location.TimePeriods.Daily[]
       if (tideEntries.length === 0 && records.TideForecasts) {
         const tf = records.TideForecasts;
-        const loc = tf.Location || tf.location || (Array.isArray(tf) ? tf[0] : null);
+        // TideForecasts 多半是陣列，要先取第一筆，再往下進到 .Location 這一層
+        const wrapper = Array.isArray(tf) ? tf[0] : tf;
+        const loc = wrapper?.Location || wrapper?.location || wrapper;
         if (loc) {
           const periods = loc.TimePeriods || loc.timePeriods;
           const dailyList = periods?.Daily || periods?.daily || [];
