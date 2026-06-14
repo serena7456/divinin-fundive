@@ -75,6 +75,7 @@ const CONFIG = {
 const WEATHER_MAP = {
   "蝙蝠洞": { township: "瑞芳區", tideLocation: "瑞芳區" },
   "龍洞3號": { township: "貢寮區", tideLocation: "貢寮區" },
+  "龍洞四號": { township: "貢寮區", tideLocation: "貢寮區" },
   "蚊子坑": { township: "貢寮區", tideLocation: "貢寮區" }
 };
 
@@ -120,6 +121,23 @@ const DIVE_SITES = {
       { time: "11:00 – 12:00", title: "第二潛 🫧",            desc: "再次下潛，探索更多角落！",                 icon: "🤿", dive: 2 },
       { time: "12:00 – 12:45", title: "簡單盥洗",             desc: "現場備有可樂桶可簡單沖洗，也可前往配合潛店使用熱水盥洗",       icon: "🚿" },
       { time: "13:00",         title: "返程 🏠",              desc: "收拾完畢，快樂返家！辛苦了～",                                 icon: "🚗" }
+    ]
+  },
+
+  "龍洞四號": {
+    shuttle:   { time: "06:30", location: "圓山捷運站 2 號出口", mapUrl: "https://maps.app.goo.gl/geb88wbtgZWGhRAN8" },
+    direct:    { time: "07:20", location: "龍洞四號", mapUrl: "https://maps.app.goo.gl/eyFLc3EVb5GcaGpx8" },
+    warning:   "",
+    schedule: [
+      { time: "06:30",         title: "圓山捷運站 2 號出口",  desc: "共乘車集合出發",                                             icon: "🚐" },
+      { time: "07:20",         title: "抵達龍洞四號",         desc: "整裝、Briefing、下水準備",                                    icon: "🏖️" },
+      { time: "08:00 – 09:00", title: "第一潛 🫧",            desc: "享受東北角的水下世界，記得帶上你的相機！", icon: "🤿", dive: 1 },
+      { time: "09:00 – 10:00", title: "水面休息",             desc: "補充水分、吃點點心、聊聊水下看到什麼",                         icon: "☕" },
+      { time: "10:00 – 11:00", title: "第二潛 🫧",            desc: "再次下潛，探索更多角落！",                 icon: "🤿", dive: 2 },
+      { time: "11:00 – 11:30", title: "收拾裝備、前往打氣站",  desc: "裝備清洗教學",                                               icon: "🧹" },
+      { time: "11:30 – 12:30", title: "裝備清洗、盥洗",        desc: "清洗裝備、簡單盥洗",                                          icon: "🚿" },
+      { time: "12:30 – 14:00", title: "課後說明",             desc: "潛水回顧與課後說明",                                          icon: "📋" },
+      { time: "14:00",         title: "返程 🏠",              desc: "收拾完畢，快樂返家！辛苦了～",                                 icon: "🚗" }
     ]
   },
 
@@ -992,9 +1010,21 @@ a { color: var(--reef); text-decoration: none; }
 
   // ── Meeting Points ──
   const mp = document.getElementById('meetingPoints');
-  const selfAddr = site.selfDrive.address ? `<div class="address">📍 ${site.selfDrive.location}（${site.selfDrive.address}）</div>` : `<div class="address">📍 ${site.selfDrive.location}</div>`;
-  const selfTag = site.selfDrive.tag ? `<div class="point-tag">${site.selfDrive.tag}</div>` : '';
+  const selfAddr = site.selfDrive ? (site.selfDrive.address ? `<div class="address">📍 ${site.selfDrive.location}（${site.selfDrive.address}）</div>` : `<div class="address">📍 ${site.selfDrive.location}</div>`) : '';
+  const selfTag = site.selfDrive && site.selfDrive.tag ? `<div class="point-tag">${site.selfDrive.tag}</div>` : '';
   const directWarning = site.warning ? `<div class="point-warning">⚠️ ${site.warning}</div>` : '';
+  const selfCard = site.selfDrive ? `
+    <div class="point-card fade-up">
+      <div class="point-time"><div class="time">${site.selfDrive.time}</div><div class="period">AM</div></div>
+      <div class="point-details">
+        <h3>🚗 自行前往海邊</h3>
+        <p>自行開車或騎車前往，不知道潛點位置的夥伴</p>
+        ${selfAddr}
+        ${selfTag}
+        <br>
+        <a href="${site.selfDrive.mapUrl}" target="_blank" rel="noopener" class="map-btn">📍 開啟 Google Maps 導航</a>
+      </div>
+    </div>` : '';
 
   mp.innerHTML = `
     <div class="point-card fade-up">
@@ -1008,17 +1038,7 @@ a { color: var(--reef); text-decoration: none; }
         <a href="${site.shuttle.mapUrl}" target="_blank" rel="noopener" class="map-btn">📍 開啟 Google Maps 導航</a>
       </div>
     </div>
-    <div class="point-card fade-up">
-      <div class="point-time"><div class="time">${site.selfDrive.time}</div><div class="period">AM</div></div>
-      <div class="point-details">
-        <h3>🚗 自行前往海邊</h3>
-        <p>自行開車或騎車前往，不知道潛點位置的夥伴</p>
-        ${selfAddr}
-        ${selfTag}
-        <br>
-        <a href="${site.selfDrive.mapUrl}" target="_blank" rel="noopener" class="map-btn">📍 開啟 Google Maps 導航</a>
-      </div>
-    </div>
+    ${selfCard}
     <div class="point-card fade-up">
       <div class="point-time"><div class="time">${site.direct.time}</div><div class="period">AM</div></div>
       <div class="point-details">
