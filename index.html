@@ -41,8 +41,8 @@ const CONFIG = {
   //    有填 API Key 時，每天的 weather / airTemp / tide 會被該日 API 自動覆蓋
   days: [
     {
-      date:    "2026-07-03",       // 格式：YYYY-MM-DD
-      weekday: "週五",
+      date:    "2026-07-04",       // 格式：YYYY-MM-DD
+      weekday: "週六",
       weather:       "雷陣雨",
       airTemp:       "27 – 31°C",
       waterTemp:     "26 – 27°C",
@@ -56,8 +56,8 @@ const CONFIG = {
       }
     },
     {
-      date:    "2026-07-04",
-      weekday: "週六",
+      date:    "2026-07-05",
+      weekday: "週日",
       weather:       "多雲時晴",
       airTemp:       "27 – 31°C",
       waterTemp:     "26 – 27°C",
@@ -68,7 +68,20 @@ const CONFIG = {
         high2:      "08:50",
         low2:       "17:45",
         waveHeight: "約 40 CM"
-      }
+      },
+      // 7/5 專屬行程：早上照蝙蝠洞，第二潛後改為清洗 / 課後說明 / 返程
+      schedule: [
+        { time: "06:50",         title: "圓山捷運站 2 號出口",  desc: "共乘車集合出發",                                             icon: "🚐" },
+        { time: "07:20",         title: "打氣站北部瑞芳店",     desc: "自行前往的夥伴於此集合",                                      icon: "⛽" },
+        { time: "07:30",         title: "抵達蝙蝠洞",           desc: "整裝、Briefing、下水準備",                                    icon: "🏖️" },
+        { time: "08:30 – 09:30", title: "第一潛 🫧",            desc: "享受東北角的水下世界，記得帶上你的相機！", icon: "🤿", dive: 1 },
+        { time: "09:30 – 10:30", title: "水面休息",             desc: "補充水分、吃點點心、聊聊水下看到什麼",                         icon: "☕" },
+        { time: "10:30 – 11:30", title: "第二潛 🫧",            desc: "再次下潛，探索更多角落！",                 icon: "🤿", dive: 2 },
+        { time: "11:30 – 12:00", title: "收拾裝備、前往打氣站",  desc: "裝備清洗教學",                                               icon: "🧹" },
+        { time: "12:00 – 13:00", title: "裝備清洗、盥洗",        desc: "清洗裝備、簡單盥洗",                                          icon: "🚿" },
+        { time: "13:00 – 14:30", title: "課後說明",             desc: "潛水回顧與課後說明",                                          icon: "📋" },
+        { time: "14:30",         title: "返程 🏠",              desc: "收拾完畢，快樂返家！辛苦了～",                                 icon: "🚗" }
+      ]
     }
   ],
 
@@ -1066,25 +1079,6 @@ a { color: var(--reef); text-decoration: none; }
     </div>
   `;
 
-  // ── Timeline ──
-  const tl = document.getElementById('timeline');
-  tl.innerHTML = site.schedule.map((item, i) => {
-    const isDive = !!item.dive;
-    const cls = isDive ? 'tl-item highlight fade-up' : 'tl-item fade-up';
-    const badge = isDive ? `<div class="dive-badge">🫧 DIVE ${item.dive} · ~60 min</div>` : '';
-    return `
-      <div class="${cls}" style="transition-delay:${i * 0.05}s">
-        <div class="tl-dot"><span class="dot-icon">${item.icon}</span></div>
-        <div class="tl-content">
-          <div class="tl-time">${item.time}</div>
-          <div class="tl-title">${item.title}</div>
-          <div class="tl-desc">${item.desc}</div>
-          ${badge}
-        </div>
-      </div>
-    `;
-  }).join('');
-
   // ── Photo Album ──
   const pa = document.getElementById('photoAlbumSection');
   if (CONFIG.photoAlbum) {
@@ -1201,6 +1195,25 @@ a { color: var(--reef); text-decoration: none; }
         <div class="card-note">視當日海況可能調整</div>
       </div>
     `;
+
+    // ── Timeline（可被該日 schedule 覆蓋，否則用潛點預設）──
+    const schedule = day.schedule || site.schedule;
+    document.getElementById('timeline').innerHTML = schedule.map((item, i) => {
+      const isDive = !!item.dive;
+      const cls = isDive ? 'tl-item highlight fade-up' : 'tl-item fade-up';
+      const badge = isDive ? `<div class="dive-badge">🫧 DIVE ${item.dive} · ~60 min</div>` : '';
+      return `
+        <div class="${cls}" style="transition-delay:${i * 0.05}s">
+          <div class="tl-dot"><span class="dot-icon">${item.icon}</span></div>
+          <div class="tl-content">
+            <div class="tl-time">${item.time}</div>
+            <div class="tl-title">${item.title}</div>
+            <div class="tl-desc">${item.desc}</div>
+            ${badge}
+          </div>
+        </div>
+      `;
+    }).join('');
 
     // ── Notes (dynamic text) ──
     document.getElementById('noteWeather').innerHTML =
