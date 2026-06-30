@@ -24,13 +24,9 @@
 
 const CONFIG = {
 
-  // ── 📅 日期 ──
-  date:     "2026-06-13",       // 格式：YYYY-MM-DD
-  weekday:  "週六",              // 週六 / 週日
-
   // ── 🤿 潛點（改這個，集合地點 & 行程自動連動）──
   //    可選值："蝙蝠洞" / "龍洞3號" / "龍洞四號" / "蚊子坑"
-  diveSite: "龍洞四號",
+  diveSite: "蝙蝠洞",
 
   // ── 🏊 潛水支數 ──
   diveCount: 2,
@@ -41,21 +37,40 @@ const CONFIG = {
   //    留空 → 使用下方手動值
   cwaApiKey: "CWA-D45B9403-3AF4-4E95-81C7-EA2397E19B63",
 
-  // ── 🌤️ 天氣（備用 / 手動覆蓋）──
-  //    有填 API Key 時，以下值會被自動覆蓋
-  //    沒填 API Key 或 API 抓取失敗時，使用以下手動值
-  weather:       "多雲 / 午後雷雨",
-  airTemp:       "25 – 27°C",
-  waterTemp:     "約 24 - 25°C",
-  waterTempNote: "時有冷流，若較怕冷背心等配件建議攜帶",
-
-  // ── 🌊 潮汐 & 浪高（備用 / 手動覆蓋）──
-  tide: {
-    high1:      "05:30",
-    low:        "13:40",
-    high2:      "21:45",
-    waveHeight: "50 – 70 CM"
-  },
+  // ── 📅 活動日期（可放多天，頁面上方會自動出現切換頁籤）──
+  //    有填 API Key 時，每天的 weather / airTemp / tide 會被該日 API 自動覆蓋
+  days: [
+    {
+      date:    "2026-07-03",       // 格式：YYYY-MM-DD
+      weekday: "週五",
+      weather:       "雷陣雨",
+      airTemp:       "27 – 31°C",
+      waterTemp:     "26 – 27°C",
+      waterTempNote: "水溫溫暖",
+      tide: {
+        high1:      "01:00",
+        low1:       "05:10",
+        high2:      "08:15",
+        low2:       "17:10",
+        waveHeight: "約 40 CM"
+      }
+    },
+    {
+      date:    "2026-07-04",
+      weekday: "週六",
+      weather:       "多雲時晴",
+      airTemp:       "27 – 31°C",
+      waterTemp:     "26 – 27°C",
+      waterTempNote: "水溫溫暖",
+      tide: {
+        high1:      "01:30",
+        low1:       "05:55",
+        high2:      "08:50",
+        low2:       "17:45",
+        waveHeight: "約 40 CM"
+      }
+    }
+  ],
 
   // ── 👤 活動負責人 ──
   leader: {
@@ -66,7 +81,7 @@ const CONFIG = {
   },
 
   // ── 📸 活動照片連結（Google Drive 等）──
-  photoAlbum: "https://drive.google.com/drive/folders/12ISvszA74Rfswn2L7Ik59ypNiLBF2F9r?usp=sharing"
+  photoAlbum: "https://drive.google.com/drive/folders/1bPIPWTZc3aI63eWRg3zsVNeLr8YF5KFJ?usp=sharing"
 };
 
 // ── 潛點對應的氣象測站（自動對應，不需修改）──
@@ -836,6 +851,38 @@ a { color: var(--reef); text-decoration: none; }
   .contact-phone { font-size: 0.95rem; padding: 10px 16px; }
 }
 
+/* ── Day switch tabs ── */
+.day-tabs {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin: 0 0 22px;
+}
+.day-tab {
+  font-family: inherit;
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: var(--foam);
+  background: rgba(255, 255, 255, 0.10);
+  border: 1.5px solid rgba(255, 255, 255, 0.30);
+  border-radius: 999px;
+  padding: 9px 22px;
+  cursor: pointer;
+  backdrop-filter: blur(6px);
+  transition: all 0.2s ease;
+}
+.day-tab:hover { background: rgba(255, 255, 255, 0.20); }
+.day-tab.active {
+  color: var(--ocean);
+  background: #fff;
+  border-color: #fff;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.18);
+}
+@media (max-width: 360px) {
+  .day-tab { font-size: 0.82rem; padding: 8px 16px; }
+}
+
 /* ── Reduced motion ── */
 @media (prefers-reduced-motion: reduce) {
   .bubble, .float-element, .scroll-hint { animation: none !important; }
@@ -859,6 +906,7 @@ a { color: var(--reef); text-decoration: none; }
     <div class="brand-badge"><span class="dot"></span>DIVIN'IN 潛靜</div>
     <h1>東北角 <span class="accent">Fun Dive</span></h1>
     <p class="hero-subtitle" id="heroSubtitle"></p>
+    <div class="day-tabs" id="dayTabs"></div>
     <div class="hero-info-grid" id="heroInfoGrid"></div>
   </div>
   <div class="scroll-hint"><span>往下看完整行程</span><div class="arrow"></div></div>
@@ -971,42 +1019,8 @@ a { color: var(--reef); text-decoration: none; }
   const site = DIVE_SITES[CONFIG.diveSite];
   if (!site) { document.body.innerHTML = '<h1 style="text-align:center;padding:80px 20px;">⚠️ 潛點「' + CONFIG.diveSite + '」不在資料庫中，請檢查 CONFIG.diveSite</h1>'; return; }
 
-  // ── Format date ──
-  const [y, m, d] = CONFIG.date.split('-');
-  const dateStr = `${m}/${d}（${CONFIG.weekday}）`;
-
-  // ── Hero ──
-  document.getElementById('heroSubtitle').textContent = `📅 ${dateStr}｜${CONFIG.diveSite}`;
-  const loadingHint = CONFIG.cwaApiKey ? ' <span style="opacity:0.5;font-size:0.65rem;">⏳</span>' : '';
-
-  document.getElementById('heroInfoGrid').innerHTML = `
-    <div class="hero-info-card"><div class="icon">🌡️</div><div class="label">地面氣溫</div><div class="value" id="heroAirTemp">${CONFIG.airTemp}${loadingHint}</div></div>
-    <div class="hero-info-card"><div class="icon">🌊</div><div class="label">水溫</div><div class="value">${CONFIG.waterTemp}</div></div>
-    <div class="hero-info-card"><div class="icon">⛅</div><div class="label">天氣</div><div class="value" id="heroWeather">${CONFIG.weather}${loadingHint}</div></div>
-    <div class="hero-info-card"><div class="icon">🏊‍♂️</div><div class="label">潛水支數</div><div class="value">${CONFIG.diveCount} 支氣瓶</div></div>
-  `;
-
-  // ── Quick Info Cards ──
-  document.getElementById('infoCards').innerHTML = `
-    <div class="info-card fade-up">
-      <div class="card-icon">🌊</div>
-      <div class="card-title">潮汐</div>
-      <div class="card-value" id="tideValue">${CONFIG.tide.low} 乾潮</div>
-      <div class="card-note" id="tideNote">${CONFIG.tide.high1} 滿潮 → ${CONFIG.tide.low} 乾潮<br>${CONFIG.tide.high2} 滿潮</div>
-    </div>
-    <div class="info-card fade-up" style="transition-delay:0.1s">
-      <div class="card-icon">📏</div>
-      <div class="card-title">浪高</div>
-      <div class="card-value" id="waveValue">${CONFIG.tide.waveHeight}</div>
-      <div class="card-note">海況稍有起伏，請聽從導潛及教練指示</div>
-    </div>
-    <div class="info-card fade-up" style="transition-delay:0.2s">
-      <div class="card-icon">📍</div>
-      <div class="card-title">預計潛點</div>
-      <div class="card-value">${CONFIG.diveSite}</div>
-      <div class="card-note">視當日海況可能調整</div>
-    </div>
-  `;
+  // ── 多日切換 state ──
+  let activeIndex = 0;
 
   // ── Meeting Points ──
   const mp = document.getElementById('meetingPoints');
@@ -1071,12 +1085,6 @@ a { color: var(--reef); text-decoration: none; }
     `;
   }).join('');
 
-  // ── Notes (dynamic text) ──
-  document.getElementById('noteWeather').innerHTML =
-    `本週天氣炎熱（${CONFIG.airTemp}），務必做好防曬並多喝水補充水分。午後可能有短暫雷陣雨，請隨身攜帶輕便雨具。`;
-  document.getElementById('noteWaterTemp').innerHTML =
-    `水溫${CONFIG.waterTemp}，${CONFIG.waterTempNote}。`;
-
   // ── Photo Album ──
   const pa = document.getElementById('photoAlbumSection');
   if (CONFIG.photoAlbum) {
@@ -1132,19 +1140,92 @@ a { color: var(--reef); text-decoration: none; }
       if (e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target); }
     });
   }, { threshold: 0.15, rootMargin: '0px 0px -40px 0px' });
-  document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
-
-  // ══════════════════════════════════════════════════
-  // 🌤️🌊 CWA 氣象署自動抓取（天氣 + 氣溫 + 潮汐）
-  // ══════════════════════════════════════════════════
-  if (CONFIG.cwaApiKey) {
-    const stationInfo = WEATHER_MAP[CONFIG.diveSite] || { township: '瑞芳區', tideLocation: '新北市瑞芳區' };
-    fetchWeatherData(stationInfo.township);
-    fetchTideData(stationInfo.tideLocation);
+  function observeFadeUps() {
+    document.querySelectorAll('.fade-up:not(.visible)').forEach(el => observer.observe(el));
   }
 
+  // ── 日期切換頁籤 ──
+  const dayTabs = document.getElementById('dayTabs');
+  if (CONFIG.days.length > 1) {
+    dayTabs.innerHTML = CONFIG.days.map((dd, i) => {
+      const [, mm, day] = dd.date.split('-');
+      return `<button class="day-tab" data-idx="${i}">${parseInt(mm)}/${parseInt(day)}（${dd.weekday}）</button>`;
+    }).join('');
+    dayTabs.querySelectorAll('.day-tab').forEach(btn => {
+      btn.addEventListener('click', () => applyDay(parseInt(btn.dataset.idx)));
+    });
+  }
+
+  // ══════════════════════════════════════════════════
+  //  依當日資料渲染（hero 天氣、潮汐卡、注意事項、API）
+  // ══════════════════════════════════════════════════
+  function applyDay(idx) {
+    activeIndex = idx;
+    const day = CONFIG.days[idx];
+
+    // 頁籤 active 狀態
+    document.querySelectorAll('.day-tab').forEach((b, i) => b.classList.toggle('active', i === idx));
+
+    // ── Hero ──
+    const [yy, mm, dd] = day.date.split('-');
+    const dateStr = `${parseInt(mm)}/${parseInt(dd)}（${day.weekday}）`;
+    document.getElementById('heroSubtitle').textContent = `📅 ${dateStr}｜${CONFIG.diveSite}`;
+    const loadingHint = CONFIG.cwaApiKey ? ' <span style="opacity:0.5;font-size:0.65rem;">⏳</span>' : '';
+
+    document.getElementById('heroInfoGrid').innerHTML = `
+      <div class="hero-info-card"><div class="icon">🌡️</div><div class="label">地面氣溫</div><div class="value" id="heroAirTemp">${day.airTemp}${loadingHint}</div></div>
+      <div class="hero-info-card"><div class="icon">🌊</div><div class="label">水溫</div><div class="value">${day.waterTemp}</div></div>
+      <div class="hero-info-card"><div class="icon">⛅</div><div class="label">天氣</div><div class="value" id="heroWeather">${day.weather}${loadingHint}</div></div>
+      <div class="hero-info-card"><div class="icon">🏊‍♂️</div><div class="label">潛水支數</div><div class="value">${CONFIG.diveCount} 支氣瓶</div></div>
+    `;
+
+    // ── Quick Info Cards ──
+    const t = day.tide;
+    document.getElementById('infoCards').innerHTML = `
+      <div class="info-card fade-up">
+        <div class="card-icon">🌊</div>
+        <div class="card-title">潮汐</div>
+        <div class="card-value" id="tideValue">${t.low1} 乾潮</div>
+        <div class="card-note" id="tideNote">${t.high1} 滿潮 → ${t.low1} 乾潮<br>${t.high2} 滿潮 → ${t.low2} 乾潮</div>
+      </div>
+      <div class="info-card fade-up" style="transition-delay:0.1s">
+        <div class="card-icon">📏</div>
+        <div class="card-title">浪高</div>
+        <div class="card-value" id="waveValue">${t.waveHeight}</div>
+        <div class="card-note">海況稍有起伏，請聽從導潛及教練指示</div>
+      </div>
+      <div class="info-card fade-up" style="transition-delay:0.2s">
+        <div class="card-icon">📍</div>
+        <div class="card-title">預計潛點</div>
+        <div class="card-value">${CONFIG.diveSite}</div>
+        <div class="card-note">視當日海況可能調整</div>
+      </div>
+    `;
+
+    // ── Notes (dynamic text) ──
+    document.getElementById('noteWeather').innerHTML =
+      `本週天氣炎熱（${day.airTemp}），務必做好防曬並多喝水補充水分。午後可能有短暫雷陣雨，請隨身攜帶輕便雨具。`;
+    document.getElementById('noteWaterTemp').innerHTML =
+      `水溫${day.waterTemp}，${day.waterTempNote}。`;
+
+    // 切換時新插入的資訊卡立即顯示，其餘交給 observer 漸入
+    document.querySelectorAll('#infoCards .fade-up').forEach(el => el.classList.add('visible'));
+    observeFadeUps();
+
+    // ── CWA 氣象署自動抓取（依當日日期）──
+    if (CONFIG.cwaApiKey) {
+      const stationInfo = WEATHER_MAP[CONFIG.diveSite] || { township: '瑞芳區', tideLocation: '新北市瑞芳區' };
+      fetchWeatherData(stationInfo.township, day.date, idx);
+      fetchTideData(stationInfo.tideLocation, day.date, idx);
+    }
+  }
+
+  // ── 初次渲染 ──
+  applyDay(0);
+  observeFadeUps();
+
   // ── 天氣 & 氣溫自動抓取 ──
-  async function fetchWeatherData(township) {
+  async function fetchWeatherData(township, targetDate, reqIdx) {
     try {
       // F-D0047-071：新北市未來1週鄉鎮天氣預報
       const url = 'https://opendata.cwa.gov.tw/api/v1/rest/datastore/F-D0047-071'
@@ -1165,7 +1246,6 @@ a { color: var(--reef); text-decoration: none; }
       const loc = locations[0]?.location?.find(l => l.locationName === township);
       if (!loc) throw new Error('找不到 ' + township);
 
-      const targetDate = CONFIG.date;
       let wx = '', minT = '', maxT = '', pop = '';
 
       for (const elem of loc.weatherElement) {
@@ -1195,6 +1275,9 @@ a { color: var(--reef); text-decoration: none; }
         }
       }
 
+      // 若使用者已切換到別天，放棄這次（過期）的更新
+      if (reqIdx !== activeIndex) return;
+
       // 更新頁面
       if (minT && maxT) {
         const tempStr = minT + ' – ' + maxT + '°C';
@@ -1213,16 +1296,18 @@ a { color: var(--reef); text-decoration: none; }
       console.info('✅ 天氣資料已從氣象署自動更新（' + township + '）');
     } catch (err) {
       console.warn('⚠️ 天氣 API 讀取失敗，使用手動資料：', err.message);
-      // 清除 loading 指示器
+      if (reqIdx !== activeIndex) return;
+      // 清除 loading 指示器，還原手動值
+      const fallback = CONFIG.days[reqIdx] || {};
       const heroTemp = document.getElementById('heroAirTemp');
       const heroWx = document.getElementById('heroWeather');
-      if (heroTemp) heroTemp.textContent = CONFIG.airTemp;
-      if (heroWx) heroWx.textContent = CONFIG.weather;
+      if (heroTemp) heroTemp.textContent = fallback.airTemp || '';
+      if (heroWx) heroWx.textContent = fallback.weather || '';
     }
   }
 
   // ── 潮汐自動抓取 ──
-  async function fetchTideData(tideLocation) {
+  async function fetchTideData(tideLocation, targetDate, reqIdx) {
     try {
       // F-A0021-001：未來1個月潮汐預報
       const url = 'https://opendata.cwa.gov.tw/api/v1/rest/datastore/F-A0021-001'
@@ -1237,7 +1322,6 @@ a { color: var(--reef); text-decoration: none; }
       // 方便 debug：在 Console 印出完整回應結構
       console.log('🌊 潮汐 API 原始回應：', JSON.stringify(data).substring(0, 500));
 
-      const targetDate = CONFIG.date;
       let tideEntries = [];
 
       // ── 解析策略：遍歷所有可能的回應結構 ──
@@ -1324,6 +1408,9 @@ a { color: var(--reef); text-decoration: none; }
       console.log('🌊 解析到的潮汐資料：', tideEntries);
 
       if (tideEntries.length > 0) {
+        // 若使用者已切換到別天，放棄這次（過期）的更新
+        if (reqIdx !== activeIndex) return;
+
         const highs = tideEntries.filter(t => /滿潮|High|high/i.test(t.type));
         const lows = tideEntries.filter(t => /乾潮|Low|low/i.test(t.type));
 
@@ -1336,14 +1423,15 @@ a { color: var(--reef); text-decoration: none; }
         const h1 = highs[0] ? fmtTime(highs[0].time) : '--:--';
         const lo = lows[0] ? fmtTime(lows[0].time) : '--:--';
         const h2 = highs[1] ? fmtTime(highs[1].time) : '--:--';
+        const lo2 = lows[1] ? fmtTime(lows[1].time) : '';
 
         const tv = document.getElementById('tideValue');
         const tn = document.getElementById('tideNote');
         if (tv) tv.textContent = lo + ' 乾潮';
-        if (tn) tn.innerHTML = h1 + ' 滿潮 → ' + lo + ' 乾潮<br>' + h2 + ' 滿潮'
+        if (tn) tn.innerHTML = h1 + ' 滿潮 → ' + lo + ' 乾潮<br>' + h2 + ' 滿潮' + (lo2 ? ' → ' + lo2 + ' 乾潮' : '')
           + '<br><span style="font-size:0.7rem;color:var(--kelp);">✓ 氣象署自動更新（' + tideLocation + '）</span>';
 
-        console.info('✅ 潮汐更新完成：滿潮 ' + h1 + '/' + h2 + '，乾潮 ' + lo);
+        console.info('✅ 潮汐更新完成：滿潮 ' + h1 + '/' + h2 + '，乾潮 ' + lo + (lo2 ? '/' + lo2 : ''));
       } else {
         console.warn('⚠️ 找不到 ' + targetDate + ' 的潮汐資料');
         console.warn('💡 請打開 Console 查看上方「原始回應」來確認資料結構');
