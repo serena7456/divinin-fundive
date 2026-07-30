@@ -24,12 +24,9 @@
 
 const CONFIG = {
 
-  // ── 🤿 潛點（改這個，集合地點 & 行程自動連動）──
-  //    可選值："蝙蝠洞" / "龍洞3號" / "龍洞四號" / "蚊子坑"
-  diveSite: "蝙蝠洞",
-
-  // ── 🏊 潛水支數 ──
-  diveCount: 2,
+  // ── 📅 活動日期 ──
+  date:    "2025-08-02",       // 格式：YYYY-MM-DD
+  weekday: "週六",
 
   // ── 🔑 中央氣象署 Open Data API ──
   //    👉 申請網址：https://opendata.cwa.gov.tw/
@@ -37,64 +34,37 @@ const CONFIG = {
   //    留空 → 使用下方手動值
   cwaApiKey: "CWA-D45B9403-3AF4-4E95-81C7-EA2397E19B63",
 
-  // ── 📅 活動日期（可放多天，頁面上方會自動出現切換頁籤）──
-  //    有填 API Key 時，每天的 weather / airTemp / tide 會被該日 API 自動覆蓋
-  days: [
+  // ── 📸 活動照片連結（Google Drive 等）──
+  photoAlbum: "https://drive.google.com/drive/folders/1ycGxCh2O5I2dr5KU0n2XIYHy4MLXFiFQ?usp=sharing",
+
+  // ── 🤿 當日活動（可放多場）──
+  //    只放一場   → 不顯示分頁，跟原本單場流程一模一樣
+  //    放多場活動 → 頁面上方自動出現分頁切換
+  //    可選 diveSite："蝙蝠洞" / "龍洞3號" / "龍洞四號" / "蚊子坑" / "萬安艦"
+  activities: [
     {
-      date:    "2026-07-04",       // 格式：YYYY-MM-DD
-      weekday: "週六",
-      weather:       "雷陣雨",
-      airTemp:       "27 – 31°C",
-      waterTemp:     "26 – 27°C",
-      waterTempNote: "水溫溫暖",
-      tide: {
-        high1:      "01:00",
-        low1:       "05:10",
-        high2:      "08:15",
-        low2:       "17:10",
-        waveHeight: "約 40 CM"
-      }
+      label: "⛴️ 船潛",
+      diveSite: "萬安艦",
+      diveCount: 2,
+      weather: "陰天",
+      airTemp: "28°C",
+      waterTemp: "26 – 28°C",
+      waterTempNote: "水溫舒適，潛水後搭船風大，建議攜帶薄外套擋風",
+      tide: { high1: "--:--", low: "--:--", high2: "--:--", waveHeight: "0.3 M" },
+      leader: { name: "昱辰教練", phone: "0975-382-650" }
     },
     {
-      date:    "2026-07-05",
-      weekday: "週日",
-      weather:       "多雲時晴",
-      airTemp:       "27 – 31°C",
-      waterTemp:     "26 – 27°C",
-      waterTempNote: "水溫溫暖",
-      tide: {
-        high1:      "01:30",
-        low1:       "05:55",
-        high2:      "08:50",
-        low2:       "17:45",
-        waveHeight: "約 40 CM"
-      },
-      // 7/5 專屬行程：早上照蝙蝠洞，第二潛後改為清洗 / 課後說明 / 返程
-      schedule: [
-        { time: "06:50",         title: "圓山捷運站 2 號出口",  desc: "共乘車集合出發",                                             icon: "🚐" },
-        { time: "07:20",         title: "打氣站北部瑞芳店",     desc: "自行前往的夥伴於此集合",                                      icon: "⛽" },
-        { time: "07:30",         title: "抵達蝙蝠洞",           desc: "整裝、Briefing、下水準備",                                    icon: "🏖️" },
-        { time: "08:30 – 09:30", title: "第一潛 🫧",            desc: "享受東北角的水下世界，記得帶上你的相機！", icon: "🤿", dive: 1 },
-        { time: "09:30 – 10:30", title: "水面休息",             desc: "補充水分、吃點點心、聊聊水下看到什麼",                         icon: "☕" },
-        { time: "10:30 – 11:30", title: "第二潛 🫧",            desc: "再次下潛，探索更多角落！",                 icon: "🤿", dive: 2 },
-        { time: "11:30 – 12:00", title: "收拾裝備、前往打氣站",  desc: "裝備清洗教學",                                               icon: "🧹" },
-        { time: "12:00 – 13:00", title: "裝備清洗、盥洗",        desc: "清洗裝備、簡單盥洗",                                          icon: "🚿" },
-        { time: "13:00 – 14:30", title: "課後說明",             desc: "潛水回顧與課後說明",                                          icon: "📋" },
-        { time: "14:30",         title: "返程 🏠",              desc: "收拾完畢，快樂返家！辛苦了～",                                 icon: "🚗" }
-      ]
+      label: "🏖️ 岸潛",
+      diveSite: "蝙蝠洞",
+      diveCount: 2,
+      weather: "陰天",
+      airTemp: "28°C",
+      waterTemp: "26 – 28°C",
+      waterTempNote: "水溫舒適，無需額外保暖",
+      tide: { high1: "--:--", low: "--:--", high2: "--:--", waveHeight: "0.3 M" },
+      leader: { name: "Linda 教練", phone: "0954-021-482" }
     }
-  ],
-
-  // ── 👤 活動負責人 ──
-  leader: {
-    name:  "昱辰 教練",
-    phone: "0975-382-650",
-    lineName: "潛靜小編",                                  // 留空則不顯示 LINE 按鈕
-    lineUrl:  "https://line.me/R/ti/p/%40647dfcwd"
-  },
-
-  // ── 📸 活動照片連結（Google Drive 等）──
-  photoAlbum: "https://drive.google.com/drive/folders/1bPIPWTZc3aI63eWRg3zsVNeLr8YF5KFJ?usp=sharing"
+  ]
 };
 
 // ── 潛點對應的氣象測站（自動對應，不需修改）──
@@ -104,7 +74,8 @@ const WEATHER_MAP = {
   "蝙蝠洞": { township: "瑞芳區", tideLocation: "瑞芳區" },
   "龍洞3號": { township: "貢寮區", tideLocation: "貢寮區" },
   "龍洞四號": { township: "貢寮區", tideLocation: "貢寮區" },
-  "蚊子坑": { township: "貢寮區", tideLocation: "貢寮區" }
+  "蚊子坑": { township: "貢寮區", tideLocation: "貢寮區" },
+  "萬安艦": { township: "貢寮區", tideLocation: "海水浴場福隆" }
 };
 
 
@@ -119,6 +90,7 @@ const WEATHER_MAP = {
 const DIVE_SITES = {
 
   "蝙蝠洞": {
+    diveType: "shore",
     shuttle:   { time: "06:50", location: "圓山捷運站 2 號出口", mapUrl: "https://maps.app.goo.gl/geb88wbtgZWGhRAN8" },
     selfDrive: { time: "07:20", location: "打氣站北部瑞芳店", address: "新北市瑞芳區海濱路 55 號", mapUrl: "https://maps.app.goo.gl/JXTnHDdHRDvxKZVk7", tag: "氣瓶填充站" },
     direct:    { time: "07:30", location: "蝙蝠洞公園", mapUrl: "https://maps.app.goo.gl/V6B3UUVDR2kNk1Xz9" },
@@ -136,6 +108,7 @@ const DIVE_SITES = {
   },
 
   "龍洞3號": {
+    diveType: "shore",
     shuttle:   { time: "06:50", location: "圓山捷運站 2 號出口", mapUrl: "https://maps.app.goo.gl/geb88wbtgZWGhRAN8" },
     selfDrive: { time: "07:50", location: "坤成潛水附近", mapUrl: "https://maps.app.goo.gl/kNv2sahMho8b42kk9", tag: "潛水店集合" },
     direct:    { time: "08:00", location: "龍洞 3 號", mapUrl: "https://maps.app.goo.gl/KnS4SMrb1rvSuWqR8" },
@@ -153,6 +126,7 @@ const DIVE_SITES = {
   },
 
   "龍洞四號": {
+    diveType: "shore",
     shuttle:   { time: "06:30", location: "圓山捷運站 2 號出口", mapUrl: "https://maps.app.goo.gl/geb88wbtgZWGhRAN8" },
     direct:    { time: "07:20", location: "龍洞四號", mapUrl: "https://maps.app.goo.gl/eyFLc3EVb5GcaGpx8" },
     warning:   "",
@@ -170,6 +144,7 @@ const DIVE_SITES = {
   },
 
   "蚊子坑": {
+    diveType: "shore",
     shuttle:   { time: "06:50", location: "圓山捷運站 2 號出口", mapUrl: "https://maps.app.goo.gl/geb88wbtgZWGhRAN8" },
     selfDrive: { time: "07:50", location: "坤成潛水附近", mapUrl: "https://maps.app.goo.gl/kNv2sahMho8b42kk9", tag: "潛水店集合" },
     direct:    { time: "08:00", location: "蚊子坑", mapUrl: "https://maps.app.goo.gl/bN5v9FstZ4tnBf5D9" },
@@ -183,6 +158,25 @@ const DIVE_SITES = {
       { time: "11:00 – 12:00", title: "第二潛 🫧",            desc: "再次下潛，探索更多角落！",                 icon: "🤿", dive: 2 },
       { time: "12:00 – 12:45", title: "簡單盥洗",             desc: "現場備有可樂桶可簡單沖洗，也可前往配合潛店使用熱水盥洗",       icon: "🚿" },
       { time: "13:00",         title: "返程 🏠",              desc: "收拾完畢，快樂返家！辛苦了～",                                 icon: "🚗" }
+    ]
+  },
+
+  "萬安艦": {
+    diveType: "boat",
+    shuttle:   null,
+    selfDrive: null,
+    direct:    { time: "06:45", location: "福隆深潛驛站", mapUrl: "https://maps.app.goo.gl/XaUCDj8KSTHVbTPE9" },
+    warning:   "本次船潛使用高氧氣體（EANx），請務必確認具有高氧證照",
+    schedule: [
+      { time: "06:45",         title: "福隆深潛驛站集合",     desc: "與帶隊教練會合、裝備確認",                                    icon: "📍" },
+      { time: "07:15",         title: "出航",                 desc: "船程約 40 分鐘，怕暈船的夥伴記得提前吃暈船藥",                icon: "⛴️" },
+      { time: "07:55",         title: "抵達萬安艦 / 石城海域", desc: "準備下水",                                                  icon: "🚢" },
+      { time: "08:00 – 09:00", title: "第一潛 🫧",            desc: "萬安艦沉船探索，記得帶潛水燈！",             icon: "🤿", dive: 1 },
+      { time: "09:00 – 10:00", title: "水面休息",             desc: "船上休息，補充水分和點心",                                    icon: "☕" },
+      { time: "10:00 – 11:00", title: "第二潛 🫧",            desc: "石城海域探索",                             icon: "🤿", dive: 2 },
+      { time: "11:15",         title: "返航",                 desc: "船程約 40 分鐘",                                             icon: "⛴️" },
+      { time: "12:00",         title: "返回驛站",             desc: "上岸盥洗",                                                  icon: "🏠" },
+      { time: "12:30",         title: "活動結束，返程 🚗",     desc: "辛苦了，期待下次出航！",                                     icon: "🚗" }
     ]
   }
 };
@@ -864,36 +858,47 @@ a { color: var(--reef); text-decoration: none; }
   .contact-phone { font-size: 0.95rem; padding: 10px 16px; }
 }
 
-/* ── Day switch tabs ── */
-.day-tabs {
+/* ── Activity tab bar（多活動時才顯示，sticky 置頂）── */
+.tab-bar {
+  position: sticky;
+  top: 0;
+  z-index: 100;
   display: flex;
   justify-content: center;
-  gap: 10px;
+  gap: 8px;
   flex-wrap: wrap;
-  margin: 0 0 22px;
+  padding: 12px 20px;
+  background: rgba(6, 27, 46, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
-.day-tab {
+.tab-btn {
   font-family: inherit;
-  font-size: 0.92rem;
+  padding: 10px 24px;
+  border-radius: 24px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: transparent;
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 0.95rem;
   font-weight: 600;
-  color: var(--foam);
-  background: rgba(255, 255, 255, 0.10);
-  border: 1.5px solid rgba(255, 255, 255, 0.30);
-  border-radius: 999px;
-  padding: 9px 22px;
   cursor: pointer;
-  backdrop-filter: blur(6px);
-  transition: all 0.2s ease;
+  transition: all 0.2s;
 }
-.day-tab:hover { background: rgba(255, 255, 255, 0.20); }
-.day-tab.active {
-  color: var(--ocean);
+.tab-btn:hover { background: rgba(255, 255, 255, 0.12); }
+.tab-btn.active {
   background: #fff;
+  color: var(--deep);
   border-color: #fff;
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.18);
 }
 @media (max-width: 360px) {
-  .day-tab { font-size: 0.82rem; padding: 8px 16px; }
+  .tab-btn { font-size: 0.85rem; padding: 9px 18px; }
+}
+
+/* ── 切換活動時的淡入過渡 ── */
+#heroInfoGrid, #infoCards, #meetingPoints, #timeline,
+#notesGrid, #checklist, #contactBanner {
+  transition: opacity 0.28s ease;
 }
 
 /* ── Reduced motion ── */
@@ -919,11 +924,13 @@ a { color: var(--reef); text-decoration: none; }
     <div class="brand-badge"><span class="dot"></span>DIVIN'IN 潛靜</div>
     <h1>東北角 <span class="accent">Fun Dive</span></h1>
     <p class="hero-subtitle" id="heroSubtitle"></p>
-    <div class="day-tabs" id="dayTabs"></div>
     <div class="hero-info-grid" id="heroInfoGrid"></div>
   </div>
   <div class="scroll-hint"><span>往下看完整行程</span><div class="arrow"></div></div>
 </section>
+
+<!-- ═══════════════ ACTIVITY TABS（多活動時才顯示）═══════════════ -->
+<div class="tab-bar" id="tabBar"></div>
 
 <!-- Wave Divider -->
 <div class="wave-divider">
@@ -959,53 +966,12 @@ a { color: var(--reef); text-decoration: none; }
   <div class="section-label">Reminders</div>
   <h2 class="section-title">注意事項 📋</h2>
 
-  <div class="notes-grid">
-    <div class="note-card warning fade-up">
-      <div class="note-icon">☀️</div>
-      <h3>防曬與補水</h3>
-      <p id="noteWeather"></p>
-    </div>
-    <div class="note-card fade-up">
-      <div class="note-icon">🧊</div>
-      <h3>水溫提醒</h3>
-      <p id="noteWaterTemp"></p>
-    </div>
-    <div class="note-card fade-up">
-      <div class="note-icon">💰</div>
-      <h3>費用支付</h3>
-      <p>活動費用將於活動結束後收取，可使用<strong>轉帳</strong>方式支付。</p>
-    </div>
-    <div class="note-card fade-up">
-      <div class="note-icon">🚿</div>
-      <h3>盥洗說明</h3>
-      <p>現場備有可樂桶可簡單盥洗，盥洗完畢可直接返程。若想仔細盥洗，也可前往配合潛店使用熱水（備有有限車位）。</p>
-    </div>
-    <div class="note-card fade-up">
-      <div class="note-icon">📱</div>
-      <h3>保持聯繫</h3>
-      <p>活動當天請隨時<strong>保持手機暢通</strong>，以便聯繫與緊急狀況處理。</p>
-    </div>
-    <div class="note-card fade-up">
-      <div class="note-icon">🛢️</div>
-      <h3>氣瓶配送</h3>
-      <p>潛水氣瓶由 DIVIN'IN 潛靜統一運送至潛點，結束後統一送回，不需自行處理。</p>
-    </div>
-  </div>
+  <div class="notes-grid" id="notesGrid"></div>
 
   <!-- Checklist -->
   <div style="margin-top:28px;">
     <h3 style="font-size:1rem; font-weight:700; color:var(--deep); margin-bottom:12px;">🎒 行前裝備確認</h3>
-    <div class="checklist">
-      <div class="check-item"><span class="ci">✅</span> 潛水證照（C 卡）</div>
-      <div class="check-item"><span class="ci">✅</span> 身分證 / 健保卡</div>
-      <div class="check-item"><span class="ci">✅</span> 輕裝</div>
-      <div class="check-item"><span class="ci">✅</span> 重裝</div>
-      <div class="check-item"><span class="ci">✅</span> 電腦錶</div>
-      <div class="check-item"><span class="ci">✅</span> 相機 / GoPro</div>
-      <div class="check-item"><span class="ci">✅</span> 防曬用品</div>
-      <div class="check-item"><span class="ci">✅</span> 飲用水 / 點心</div>
-      <div class="check-item"><span class="ci">✅</span> 換洗衣物 / 毛巾</div>
-    </div>
+    <div class="checklist" id="checklist"></div>
   </div>
 
   <!-- Photo Album -->
@@ -1029,57 +995,18 @@ a { color: var(--reef); text-decoration: none; }
 <!-- ═══════════════ RENDER SCRIPT ═══════════════ -->
 <script>
 (function() {
-  const site = DIVE_SITES[CONFIG.diveSite];
-  if (!site) { document.body.innerHTML = '<h1 style="text-align:center;padding:80px 20px;">⚠️ 潛點「' + CONFIG.diveSite + '」不在資料庫中，請檢查 CONFIG.diveSite</h1>'; return; }
-
-  // ── 多日切換 state ──
+  // ── state ──
   let activeIndex = 0;
+  let firstRender = true;
 
-  // ── Meeting Points ──
-  const mp = document.getElementById('meetingPoints');
-  const selfAddr = site.selfDrive ? (site.selfDrive.address ? `<div class="address">📍 ${site.selfDrive.location}（${site.selfDrive.address}）</div>` : `<div class="address">📍 ${site.selfDrive.location}</div>`) : '';
-  const selfTag = site.selfDrive && site.selfDrive.tag ? `<div class="point-tag">${site.selfDrive.tag}</div>` : '';
-  const directWarning = site.warning ? `<div class="point-warning">⚠️ ${site.warning}</div>` : '';
-  const selfCard = site.selfDrive ? `
-    <div class="point-card fade-up">
-      <div class="point-time"><div class="time">${site.selfDrive.time}</div><div class="period">AM</div></div>
-      <div class="point-details">
-        <h3>🚗 自行前往海邊</h3>
-        <p>自行開車或騎車前往，不知道潛點位置的夥伴</p>
-        ${selfAddr}
-        ${selfTag}
-        <br>
-        <a href="${site.selfDrive.mapUrl}" target="_blank" rel="noopener" class="map-btn">📍 開啟 Google Maps 導航</a>
-      </div>
-    </div>` : '';
+  // 切換活動時需要淡入過渡的容器
+  const FADE_IDS = ['heroInfoGrid','infoCards','meetingPoints','timeline','notesGrid','checklist','contactBanner'];
 
-  mp.innerHTML = `
-    <div class="point-card fade-up">
-      <div class="point-time"><div class="time">${site.shuttle.time}</div><div class="period">AM</div></div>
-      <div class="point-details">
-        <h3>🚐 搭乘共乘車</h3>
-        <p>搭乘 DIVIN'IN 共乘車的夥伴</p>
-        <div class="address">📍 ${site.shuttle.location}</div>
-        <div class="point-tag">共乘接駁</div>
-        <br>
-        <a href="${site.shuttle.mapUrl}" target="_blank" rel="noopener" class="map-btn">📍 開啟 Google Maps 導航</a>
-      </div>
-    </div>
-    ${selfCard}
-    <div class="point-card fade-up">
-      <div class="point-time"><div class="time">${site.direct.time}</div><div class="period">AM</div></div>
-      <div class="point-details">
-        <h3>🏖️ 直接前往潛點</h3>
-        <p>已知道潛點位置的老手夥伴</p>
-        <div class="address">📍 ${site.direct.location}</div>
-        <div class="point-tag">潛點集合</div>
-        ${directWarning}
-        <a href="${site.direct.mapUrl}" target="_blank" rel="noopener" class="map-btn">📍 開啟 Google Maps 導航</a>
-      </div>
-    </div>
-  `;
+  // ── 日期字串（單一日期，所有活動共用）──
+  const [Y, M, D] = CONFIG.date.split('-');
+  const dateStr = `${parseInt(M)}/${parseInt(D)}（${CONFIG.weekday}）`;
 
-  // ── Photo Album ──
+  // ── Photo Album（與活動無關，一次渲染）──
   const pa = document.getElementById('photoAlbumSection');
   if (CONFIG.photoAlbum) {
     pa.innerHTML = `
@@ -1094,27 +1021,7 @@ a { color: var(--reef); text-decoration: none; }
     `;
   }
 
-  // ── Contact ──
-  const phoneClean = CONFIG.leader.phone.replace(/-/g, '');
-  const lineBtn = CONFIG.leader.lineUrl ? `
-      <a href="${CONFIG.leader.lineUrl}" target="_blank" rel="noopener" class="contact-line">
-        <span class="line-icon">💬</span>
-        ${CONFIG.leader.lineName || '潛靜小編'}
-      </a>` : '';
-  document.getElementById('contactBanner').innerHTML = `
-    <h3>${CONFIG.leader.name}</h3>
-    <div class="role">本週活動負責人 · DIVIN'IN 潛靜</div>
-    <div class="contact-actions">
-      <a href="tel:${phoneClean}" class="contact-phone">
-        <span class="phone-icon">📞</span>
-        ${CONFIG.leader.phone}
-      </a>
-      ${lineBtn}
-    </div>
-    <div class="contact-note">${lineBtn ? '點擊撥打電話，或加 LINE 向小編詢問' : '點擊即可撥打電話'}</div>
-  `;
-
-  // ── Bubbles ──
+  // ── Bubbles（一次渲染）──
   const bc = document.getElementById('bubbles');
   for (let i = 0; i < 18; i++) {
     const b = document.createElement('div');
@@ -1138,49 +1045,52 @@ a { color: var(--reef); text-decoration: none; }
     document.querySelectorAll('.fade-up:not(.visible)').forEach(el => observer.observe(el));
   }
 
-  // ── 日期切換頁籤 ──
-  const dayTabs = document.getElementById('dayTabs');
-  if (CONFIG.days.length > 1) {
-    dayTabs.innerHTML = CONFIG.days.map((dd, i) => {
-      const [, mm, day] = dd.date.split('-');
-      return `<button class="day-tab" data-idx="${i}">${parseInt(mm)}/${parseInt(day)}（${dd.weekday}）</button>`;
-    }).join('');
-    dayTabs.querySelectorAll('.day-tab').forEach(btn => {
-      btn.addEventListener('click', () => applyDay(parseInt(btn.dataset.idx)));
+  // ── 活動分頁（activities > 1 場才顯示）──
+  const tabBar = document.getElementById('tabBar');
+  if (CONFIG.activities.length > 1) {
+    tabBar.innerHTML = CONFIG.activities.map((a, i) =>
+      `<button class="tab-btn" data-idx="${i}">${a.label}</button>`).join('');
+    tabBar.querySelectorAll('.tab-btn').forEach(btn => {
+      btn.addEventListener('click', () => renderActivity(parseInt(btn.dataset.idx)));
     });
+  } else {
+    tabBar.style.display = 'none';
   }
 
   // ══════════════════════════════════════════════════
-  //  依當日資料渲染（hero 天氣、潮汐卡、注意事項、API）
+  //  依「活動」渲染整頁內容
   // ══════════════════════════════════════════════════
-  function applyDay(idx) {
+  function renderActivity(idx) {
     activeIndex = idx;
-    const day = CONFIG.days[idx];
+    const act = CONFIG.activities[idx];
+    const site = DIVE_SITES[act.diveSite];
+    if (!site) {
+      document.body.innerHTML = '<h1 style="text-align:center;padding:80px 20px;">⚠️ 潛點「' + act.diveSite + '」不在資料庫中，請檢查 activities[' + idx + '].diveSite</h1>';
+      return;
+    }
+    const isBoat = site.diveType === 'boat';
 
-    // 頁籤 active 狀態
-    document.querySelectorAll('.day-tab').forEach((b, i) => b.classList.toggle('active', i === idx));
+    // 分頁 active 狀態
+    document.querySelectorAll('.tab-btn').forEach((b, i) => b.classList.toggle('active', i === idx));
 
     // ── Hero ──
-    const [yy, mm, dd] = day.date.split('-');
-    const dateStr = `${parseInt(mm)}/${parseInt(dd)}（${day.weekday}）`;
-    document.getElementById('heroSubtitle').textContent = `📅 ${dateStr}｜${CONFIG.diveSite}`;
+    document.getElementById('heroSubtitle').textContent = `📅 ${dateStr}｜${act.diveSite}`;
     const loadingHint = CONFIG.cwaApiKey ? ' <span style="opacity:0.5;font-size:0.65rem;">⏳</span>' : '';
-
     document.getElementById('heroInfoGrid').innerHTML = `
-      <div class="hero-info-card"><div class="icon">🌡️</div><div class="label">地面氣溫</div><div class="value" id="heroAirTemp">${day.airTemp}${loadingHint}</div></div>
-      <div class="hero-info-card"><div class="icon">🌊</div><div class="label">水溫</div><div class="value">${day.waterTemp}</div></div>
-      <div class="hero-info-card"><div class="icon">⛅</div><div class="label">天氣</div><div class="value" id="heroWeather">${day.weather}${loadingHint}</div></div>
-      <div class="hero-info-card"><div class="icon">🏊‍♂️</div><div class="label">潛水支數</div><div class="value">${CONFIG.diveCount} 支氣瓶</div></div>
+      <div class="hero-info-card"><div class="icon">🌡️</div><div class="label">地面氣溫</div><div class="value" id="heroAirTemp">${act.airTemp}${loadingHint}</div></div>
+      <div class="hero-info-card"><div class="icon">🌊</div><div class="label">水溫</div><div class="value">${act.waterTemp}</div></div>
+      <div class="hero-info-card"><div class="icon">⛅</div><div class="label">天氣</div><div class="value" id="heroWeather">${act.weather}${loadingHint}</div></div>
+      <div class="hero-info-card"><div class="icon">🏊‍♂️</div><div class="label">潛水支數</div><div class="value">${act.diveCount} 支氣瓶</div></div>
     `;
 
     // ── Quick Info Cards ──
-    const t = day.tide;
+    const t = act.tide;
     document.getElementById('infoCards').innerHTML = `
       <div class="info-card fade-up">
         <div class="card-icon">🌊</div>
         <div class="card-title">潮汐</div>
-        <div class="card-value" id="tideValue">${t.low1} 乾潮</div>
-        <div class="card-note" id="tideNote">${t.high1} 滿潮 → ${t.low1} 乾潮<br>${t.high2} 滿潮 → ${t.low2} 乾潮</div>
+        <div class="card-value" id="tideValue">${t.low} 乾潮</div>
+        <div class="card-note" id="tideNote">${t.high1} 滿潮 → ${t.low} 乾潮<br>${t.high2} 滿潮</div>
       </div>
       <div class="info-card fade-up" style="transition-delay:0.1s">
         <div class="card-icon">📏</div>
@@ -1191,14 +1101,55 @@ a { color: var(--reef); text-decoration: none; }
       <div class="info-card fade-up" style="transition-delay:0.2s">
         <div class="card-icon">📍</div>
         <div class="card-title">預計潛點</div>
-        <div class="card-value">${CONFIG.diveSite}</div>
+        <div class="card-value">${act.diveSite}</div>
         <div class="card-note">視當日海況可能調整</div>
       </div>
     `;
 
-    // ── Timeline（可被該日 schedule 覆蓋，否則用潛點預設）──
-    const schedule = day.schedule || site.schedule;
-    document.getElementById('timeline').innerHTML = schedule.map((item, i) => {
+    // ── Meeting Points（shuttle / selfDrive 為 null 就不渲染，direct 一律渲染）──
+    const selfAddr = site.selfDrive ? (site.selfDrive.address ? `<div class="address">📍 ${site.selfDrive.location}（${site.selfDrive.address}）</div>` : `<div class="address">📍 ${site.selfDrive.location}</div>`) : '';
+    const selfTag = site.selfDrive && site.selfDrive.tag ? `<div class="point-tag">${site.selfDrive.tag}</div>` : '';
+    const directWarning = site.warning ? `<div class="point-warning">⚠️ ${site.warning}</div>` : '';
+    const shuttleCard = site.shuttle ? `
+      <div class="point-card fade-up">
+        <div class="point-time"><div class="time">${site.shuttle.time}</div><div class="period">AM</div></div>
+        <div class="point-details">
+          <h3>🚐 搭乘共乘車</h3>
+          <p>搭乘 DIVIN'IN 共乘車的夥伴</p>
+          <div class="address">📍 ${site.shuttle.location}</div>
+          <div class="point-tag">共乘接駁</div>
+          <br>
+          <a href="${site.shuttle.mapUrl}" target="_blank" rel="noopener" class="map-btn">📍 開啟 Google Maps 導航</a>
+        </div>
+      </div>` : '';
+    const selfCard = site.selfDrive ? `
+      <div class="point-card fade-up">
+        <div class="point-time"><div class="time">${site.selfDrive.time}</div><div class="period">AM</div></div>
+        <div class="point-details">
+          <h3>🚗 自行前往海邊</h3>
+          <p>自行開車或騎車前往，不知道潛點位置的夥伴</p>
+          ${selfAddr}
+          ${selfTag}
+          <br>
+          <a href="${site.selfDrive.mapUrl}" target="_blank" rel="noopener" class="map-btn">📍 開啟 Google Maps 導航</a>
+        </div>
+      </div>` : '';
+    const directCard = `
+      <div class="point-card fade-up">
+        <div class="point-time"><div class="time">${site.direct.time}</div><div class="period">AM</div></div>
+        <div class="point-details">
+          <h3>${isBoat ? '📍 集合地點' : '🏖️ 直接前往潛點'}</h3>
+          <p>${isBoat ? '所有夥伴於此集合、上船出發' : '已知道潛點位置的老手夥伴'}</p>
+          <div class="address">📍 ${site.direct.location}</div>
+          <div class="point-tag">${isBoat ? '船潛集合' : '潛點集合'}</div>
+          ${directWarning}
+          <a href="${site.direct.mapUrl}" target="_blank" rel="noopener" class="map-btn">📍 開啟 Google Maps 導航</a>
+        </div>
+      </div>`;
+    document.getElementById('meetingPoints').innerHTML = shuttleCard + selfCard + directCard;
+
+    // ── Timeline ──
+    document.getElementById('timeline').innerHTML = site.schedule.map((item, i) => {
       const isDive = !!item.dive;
       const cls = isDive ? 'tl-item highlight fade-up' : 'tl-item fade-up';
       const badge = isDive ? `<div class="dive-badge">🫧 DIVE ${item.dive} · ~60 min</div>` : '';
@@ -1215,27 +1166,85 @@ a { color: var(--reef); text-decoration: none; }
       `;
     }).join('');
 
-    // ── Notes (dynamic text) ──
-    document.getElementById('noteWeather').innerHTML =
-      `本週天氣炎熱（${day.airTemp}），務必做好防曬並多喝水補充水分。午後可能有短暫雷陣雨，請隨身攜帶輕便雨具。`;
-    document.getElementById('noteWaterTemp').innerHTML =
-      `水溫${day.waterTemp}，${day.waterTempNote}。`;
+    // ── Notes（依 diveType 切換）──
+    const notes = isBoat ? [
+      { icon: '⚠️', title: '高氧證照', cls: 'warning', html: '本次船潛使用高氧氣體（EANx），請務必確認潛水員自身具有<strong>高氧證照</strong>。' },
+      { icon: '🚗', title: '停車資訊', html: '集合地點附近停車方便，抵達後可以和帶隊教練聯繫。' },
+      { icon: '💊', title: '暈船提醒', html: '船程單趟 40 分鐘，兩潛結束後才會上岸。會暈船的夥伴請記得使用<strong>暈船藥</strong>。' },
+      { icon: '☀️', title: '防曬與補水', id: 'noteWeather', html: '注意防曬並多喝水。潛水後搭船風大，建議攜帶薄外套擋風。' },
+      { icon: '💰', title: '費用支付', html: '活動費用將於活動結束後收取，可使用<strong>轉帳</strong>方式支付。' },
+      { icon: '📱', title: '保持聯繫', html: '活動當天請隨時<strong>保持手機暢通</strong>，以便聯繫與緊急狀況處理。' }
+    ] : [
+      { icon: '☀️', title: '防曬與補水', cls: 'warning', id: 'noteWeather', html: `天氣${act.weather}、氣溫約 ${act.airTemp}，請注意防曬並多喝水補充水分。` },
+      { icon: '🧊', title: '水溫提醒', id: 'noteWaterTemp', html: `水溫${act.waterTemp}，${act.waterTempNote}。` },
+      { icon: '💰', title: '費用支付', html: '活動費用將於活動結束後收取，可使用<strong>轉帳</strong>方式支付。' },
+      { icon: '🚿', title: '盥洗說明', html: '現場備有可樂桶可簡單盥洗，盥洗完畢可直接返程。若想仔細盥洗，也可前往配合潛店使用熱水（備有有限車位）。' },
+      { icon: '📱', title: '保持聯繫', html: '活動當天請隨時<strong>保持手機暢通</strong>，以便聯繫與緊急狀況處理。' },
+      { icon: '🛢️', title: '氣瓶配送', html: '潛水氣瓶由 DIVIN\'IN 潛靜統一運送至潛點，結束後統一送回，不需自行處理。' }
+    ];
+    document.getElementById('notesGrid').innerHTML = notes.map(n => `
+      <div class="note-card ${n.cls || ''} fade-up">
+        <div class="note-icon">${n.icon}</div>
+        <h3>${n.title}</h3>
+        <p${n.id ? ` id="${n.id}"` : ''}>${n.html}</p>
+      </div>`).join('');
 
-    // 切換時新插入的資訊卡立即顯示，其餘交給 observer 漸入
-    document.querySelectorAll('#infoCards .fade-up').forEach(el => el.classList.add('visible'));
-    observeFadeUps();
+    // ── Checklist（依 diveType 切換）──
+    const gear = isBoat ? [
+      '潛水證照（C 卡 + 高氧證照）', '面鏡 / 呼吸管', '防寒衣 / 背心', '蛙鞋 / 套鞋',
+      '手套', '電腦錶', '潛水燈（必備）', '浮力袋（必備）',
+      '飲用水 / 點心', '薄外套（船上擋風）', '暈船藥', '毛巾 / 換洗衣物'
+    ] : [
+      '潛水證照（C 卡）', '身分證 / 健保卡', '輕裝', '重裝', '電腦錶',
+      '相機 / GoPro', '防曬用品', '飲用水 / 點心', '換洗衣物 / 毛巾'
+    ];
+    document.getElementById('checklist').innerHTML = gear.map(g =>
+      `<div class="check-item"><span class="ci">✅</span> ${g}</div>`).join('');
 
-    // ── CWA 氣象署自動抓取（依當日日期）──
+    // ── Contact ──
+    const leader = act.leader;
+    const phoneClean = leader.phone.replace(/-/g, '');
+    const lineBtn = leader.lineUrl ? `
+        <a href="${leader.lineUrl}" target="_blank" rel="noopener" class="contact-line">
+          <span class="line-icon">💬</span>
+          ${leader.lineName || '潛靜小編'}
+        </a>` : '';
+    document.getElementById('contactBanner').innerHTML = `
+      <h3>${leader.name}</h3>
+      <div class="role">本次活動負責人 · DIVIN'IN 潛靜</div>
+      <div class="contact-actions">
+        <a href="tel:${phoneClean}" class="contact-phone">
+          <span class="phone-icon">📞</span>
+          ${leader.phone}
+        </a>
+        ${lineBtn}
+      </div>
+      <div class="contact-note">${lineBtn ? '點擊撥打電話，或加 LINE 向小編詢問' : '點擊即可撥打電話'}</div>
+    `;
+
+    // ── 顯示與淡入 ──
+    if (firstRender) {
+      firstRender = false;
+      observeFadeUps();               // 首次載入：捲動時漸入
+    } else {
+      // 切換活動：整頁內容立即顯示 + 容器平滑淡入
+      document.querySelectorAll('.fade-up:not(.visible)').forEach(el => el.classList.add('visible'));
+      FADE_IDS.forEach(id => { const el = document.getElementById(id); if (el) el.style.opacity = '0'; });
+      requestAnimationFrame(() => requestAnimationFrame(() => {
+        FADE_IDS.forEach(id => { const el = document.getElementById(id); if (el) el.style.opacity = '1'; });
+      }));
+    }
+
+    // ── CWA 氣象署自動抓取（依該活動的潛點）──
     if (CONFIG.cwaApiKey) {
-      const stationInfo = WEATHER_MAP[CONFIG.diveSite] || { township: '瑞芳區', tideLocation: '新北市瑞芳區' };
-      fetchWeatherData(stationInfo.township, day.date, idx);
-      fetchTideData(stationInfo.tideLocation, day.date, idx);
+      const stationInfo = WEATHER_MAP[act.diveSite] || { township: '瑞芳區', tideLocation: '新北市瑞芳區' };
+      fetchWeatherData(stationInfo.township, CONFIG.date, idx);
+      fetchTideData(stationInfo.tideLocation, CONFIG.date, idx);
     }
   }
 
   // ── 初次渲染 ──
-  applyDay(0);
-  observeFadeUps();
+  renderActivity(0);
 
   // ── 天氣 & 氣溫自動抓取 ──
   async function fetchWeatherData(township, targetDate, reqIdx) {
@@ -1311,7 +1320,7 @@ a { color: var(--reef); text-decoration: none; }
       console.warn('⚠️ 天氣 API 讀取失敗，使用手動資料：', err.message);
       if (reqIdx !== activeIndex) return;
       // 清除 loading 指示器，還原手動值
-      const fallback = CONFIG.days[reqIdx] || {};
+      const fallback = CONFIG.activities[reqIdx] || {};
       const heroTemp = document.getElementById('heroAirTemp');
       const heroWx = document.getElementById('heroWeather');
       if (heroTemp) heroTemp.textContent = fallback.airTemp || '';
