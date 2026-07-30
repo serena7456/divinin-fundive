@@ -50,7 +50,15 @@ const CONFIG = {
       airTemp: "28°C",
       waterTemp: "26 – 28°C",
       waterTempNote: "水溫舒適，潛水後搭船風大，建議攜帶薄外套擋風",
-      tide: { high1: "--:--", low: "--:--", high2: "--:--", waveHeight: "0.3 M" },
+      tide: {
+        seq: [
+          { t: "04:30", type: "乾潮" },
+          { t: "10:00", type: "滿潮" },
+          { t: "16:40", type: "乾潮" }
+        ],
+        waveHeight: "0.2 – 0.3 M",
+        waveNote: "水面平靜，但仍請保持警覺"
+      },
       leader: { name: "昱辰教練", phone: "0975-382-650" }
     },
     {
@@ -61,7 +69,15 @@ const CONFIG = {
       airTemp: "28°C",
       waterTemp: "26 – 28°C",
       waterTempNote: "水溫舒適，無需額外保暖",
-      tide: { high1: "--:--", low: "--:--", high2: "--:--", waveHeight: "0.3 M" },
+      tide: {
+        seq: [
+          { t: "04:30", type: "乾潮" },
+          { t: "10:00", type: "滿潮" },
+          { t: "16:40", type: "乾潮" }
+        ],
+        waveHeight: "0.2 – 0.3 M",
+        waveNote: "水面平靜，但仍請保持警覺"
+      },
       leader: { name: "Linda 教練", phone: "0954-021-482" }
     }
   ]
@@ -1085,18 +1101,30 @@ a { color: var(--reef); text-decoration: none; }
 
     // ── Quick Info Cards ──
     const t = act.tide;
+    // 潮汐：優先用 seq 陣列（可任意排序，如 乾→滿→乾），否則沿用舊的 high1/low/high2
+    let tideValueHtml, tideNoteHtml;
+    if (t.seq) {
+      const high = t.seq.find(e => e.type.includes('滿'));
+      const head = high || t.seq[0];
+      tideValueHtml = `${head.t} ${head.type}`;
+      tideNoteHtml = t.seq.map(e => `${e.t} ${e.type}`).join(' → ');
+    } else {
+      tideValueHtml = `${t.low} 乾潮`;
+      tideNoteHtml = `${t.high1} 滿潮 → ${t.low} 乾潮<br>${t.high2} 滿潮`;
+    }
+    const waveNote = t.waveNote || '海況稍有起伏，請聽從導潛及教練指示';
     document.getElementById('infoCards').innerHTML = `
       <div class="info-card fade-up">
         <div class="card-icon">🌊</div>
         <div class="card-title">潮汐</div>
-        <div class="card-value" id="tideValue">${t.low} 乾潮</div>
-        <div class="card-note" id="tideNote">${t.high1} 滿潮 → ${t.low} 乾潮<br>${t.high2} 滿潮</div>
+        <div class="card-value" id="tideValue">${tideValueHtml}</div>
+        <div class="card-note" id="tideNote">${tideNoteHtml}</div>
       </div>
       <div class="info-card fade-up" style="transition-delay:0.1s">
         <div class="card-icon">📏</div>
         <div class="card-title">浪高</div>
         <div class="card-value" id="waveValue">${t.waveHeight}</div>
-        <div class="card-note">海況稍有起伏，請聽從導潛及教練指示</div>
+        <div class="card-note">${waveNote}</div>
       </div>
       <div class="info-card fade-up" style="transition-delay:0.2s">
         <div class="card-icon">📍</div>
